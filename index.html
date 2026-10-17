@@ -32,10 +32,14 @@ footer{text-align:center;color:var(--muted);font-size:14px;margin-top:32px}
 footer a{color:var(--text)}
 @media (max-width:480px){h1{font-size:34px}.play{font-size:20px;padding:14px 20px;min-width:0;width:100%}section{padding:16px}}
 </style>
+<script>try{localStorage.setItem('mw_site_visit',String(Date.now()))}catch(e){}</script>
+<style>#readyV1635{display:none;max-width:760px;margin:0 auto 24px;padding:16px;text-align:center;background:rgba(60,133,39,.25);border:2px solid #52a535;font-size:18px}html.fromGame #readyV1635{display:block}</style>
+<script>if(/[?&]play=1/.test(location.search))document.documentElement.classList.add('fromGame')</script>
 </head>
 <body>
 <div class="wrap">
 <main>
+  <div id="readyV1635"><strong>Your world is ready!</strong> Tap <em>Play Minecraft Web</em> to start.</div>
   <header>
     <img src="/MinecraftWeb/assets/icon/icon-192.png" alt="" width="96" height="96">
     <h1>Minecraft Web</h1>
