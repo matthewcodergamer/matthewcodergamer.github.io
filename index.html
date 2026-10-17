@@ -6,7 +6,8 @@
 <title>Minecraft Web – play in your browser</title>
 <meta name="description" content="A Java Edition–style block building game you can play in your browser on desktop, laptop or phone. No download, no install.">
 <meta name="google-adsense-account" content="ca-pub-5025566183652379">
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5025566183652379" crossorigin="anonymous"></script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5025566183652379" data-ad-frequency-hint="30s" crossorigin="anonymous"></script>
+<script>window.adsbygoogle=window.adsbygoogle||[];var adBreak=adConfig=function(o){adsbygoogle.push(o)};adConfig({preloadAdBreaks:'on',sound:'on'});</script>
 <link rel="icon" type="image/png" sizes="32x32" href="/MinecraftWeb/assets/icon/icon-32.png">
 <link rel="apple-touch-icon" href="/MinecraftWeb/assets/icon/apple-touch-icon.png">
 <style>
@@ -163,5 +164,32 @@ footer{color:var(--muted);font-size:13px;text-align:center;padding:24px 16px 40p
   <footer><p><a href="/privacy.html">Privacy policy</a> · <a href="https://github.com/matthewcodergamer/MinecraftWeb">Source on GitHub</a></p><p>Minecraft Web is an unofficial fan project. It is not affiliated with, endorsed by or associated with Mojang Studios or Microsoft. Minecraft is a trademark of Mojang Studios.</p></footer>
 </main>
 </div>
+<div id="adGate" hidden><div class="agBox"><div class="agSpin"></div><b>Loading Minecraft Web…</b><span id="agMsg">A short ad keeps the game free</span><a id="agGo" href="/MinecraftWeb/">Skip to game ▶</a></div></div>
+<style>
+#adGate{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:rgba(10,10,10,.92);font-family:inherit;color:#fff}
+#adGate[hidden]{display:none}
+.agBox{display:grid;gap:12px;justify-items:center;text-align:center;padding:28px;border:3px solid #000;background:#3c3c3c url(/MinecraftWeb/assets/java/26.1/blocks/dirt.png);background-size:64px;image-rendering:pixelated;box-shadow:inset 0 0 0 2px #6b6b6b;max-width:90vw}
+.agBox b{font-size:22px;text-shadow:2px 2px #3f3f3f}.agBox span{color:#d0d0d0;font-size:14px}
+.agSpin{width:42px;height:42px;border:6px solid #555;border-top-color:#7fcf3f;animation:agS 1s steps(8) infinite}
+@keyframes agS{to{transform:rotate(360deg)}}
+#agGo{visibility:hidden;color:#fff;background:#6b6b6b;border:2px solid #000;padding:8px 18px;text-decoration:none}
+</style>
+<script>
+/* Play: show a full-screen ad (H5 Games Ads "start" break) first, then open the game.
+   If no ad is available (not approved yet, ad blocker, frequency cap) the game opens straight away. */
+(function(){
+  var gate=document.getElementById('adGate'),go=document.getElementById('agGo'),done=false;
+  function open(){if(done)return;done=true;location.href='/MinecraftWeb/'}
+  document.addEventListener('click',function(e){
+    var a=e.target.closest&&e.target.closest('a[href="/MinecraftWeb/"]');
+    if(!a||a.id==='agGo'||e.ctrlKey||e.metaKey||e.shiftKey)return;
+    e.preventDefault();gate.hidden=false;
+    setTimeout(function(){go.style.visibility='visible'},8000);
+    try{adBreak({type:'start',name:'play_button',beforeAd:function(){window.__agShowing=true},adBreakDone:function(){setTimeout(open,150)}})}catch(err){open()}
+    /* safety: never strand the player if the ad script never answers */
+    setTimeout(function(){if(!document.hidden&&!window.__agShowing)open()},4000);
+  });
+})();
+</script>
 </body>
 </html>
