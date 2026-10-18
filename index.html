@@ -2,14 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Minecraft Web – play in your browser</title>
 <meta name="description" content="A Java Edition–style block building game you can play in your browser on desktop, laptop or phone. No download, no install.">
 <meta name="google-adsense-account" content="ca-pub-5025566183652379">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5025566183652379" data-ad-frequency-hint="30s" crossorigin="anonymous"></script>
 <script>window.adsbygoogle=window.adsbygoogle||[];var adBreak=adConfig=function(o){adsbygoogle.push(o)};adConfig({preloadAdBreaks:'on',sound:'on'});</script>
 <link rel="icon" type="image/png" sizes="32x32" href="/MinecraftWeb/assets/icon/icon-32.png">
-<link rel="apple-touch-icon" href="/MinecraftWeb/assets/icon/apple-touch-icon.png">
 <style>
 @font-face{font-family:'Minecraft Seven';src:url('/MinecraftWeb/assets/fonts/Minecraft-Seven.woff') format('woff');font-display:swap}
 :root{--bg:#141414;--side:#1c1c1c;--card:#232323;--text:#f2f2f2;--muted:#a9a9a9;--green:#3c8527;--green-hi:#52a535;--accent:#6aad3d}
@@ -54,6 +53,14 @@ footer{color:var(--muted);font-size:13px;text-align:center;padding:24px 16px 40p
 <script>try{localStorage.setItem('mw_site_visit',String(Date.now()))}catch(e){}</script>
 
 
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Minecraft Web">
+<meta name="theme-color" content="#141414">
+<script src="/install.js" defer></script>
 </head>
 <body>
 <div class="app">
@@ -101,6 +108,12 @@ footer{color:var(--muted);font-size:13px;text-align:center;padding:24px 16px 40p
       <li>Sleep in beds, sail boats, use buckets, bows and ender pearls, and type commands.</li>
       <li>Turn on optional mods and resource packs from the in-game Mods and Resource Packs screens.</li>
     </ul>
+  </section>
+
+  <section id="install">
+    <h2>Install on your phone</h2>
+    <p>Add Minecraft Web to your Home Screen and it opens full-screen like an app — no browser bars, more room to play.</p>
+    <div data-install-steps><p><b>iPhone/iPad (Safari):</b> tap Share, then <em>Add to Home Screen</em>, then open it from your Home Screen. <b>Android (Chrome):</b> ⋮ menu → <em>Install app</em>.</p></div>
   </section>
 
   <section>

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Minecraft Web Guide – controls, worlds and gameplay</title>
 <meta name="description" content="A practical guide to Minecraft Web: controls, game modes, world generation, crafting, saving and mobile play.">
 <meta name="google-adsense-account" content="ca-pub-5025566183652379">
@@ -28,6 +28,14 @@ footer{text-align:center;color:var(--muted);font-size:14px;margin:30px 0}
 @media(max-width:520px){h1{font-size:34px}section{padding:18px}.lead{font-size:16px}}
 </style>
 <script>try{localStorage.setItem('mw_site_visit',String(Date.now()))}catch(e){}</script>
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Minecraft Web">
+<meta name="theme-color" content="#141414">
+<script src="/install.js" defer></script>
 </head>
 <body>
 <div class="wrap"><main>
@@ -88,6 +96,12 @@ footer{text-align:center;color:var(--muted);font-size:14px;margin:30px 0}
 <section>
 <h2>World saves</h2>
 <p>Minecraft Web stores worlds and settings locally in the browser on the device you are using. This means a world can remain available after closing the browser, but clearing the site's stored data can remove it. Local browser storage is not a cloud backup.</p>
+</section>
+
+<section id="install">
+<h2>Install on your phone</h2>
+<p>Add Minecraft Web to your Home Screen and it opens full-screen like an app — no browser bars, more room to play.</p>
+<div data-install-steps><p><b>iPhone/iPad (Safari):</b> tap Share, then <em>Add to Home Screen</em>, then open it from your Home Screen. <b>Android (Chrome):</b> ⋮ menu → <em>Install app</em>.</p></div>
 </section>
 
 <section>
