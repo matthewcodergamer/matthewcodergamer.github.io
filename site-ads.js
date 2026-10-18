@@ -5,7 +5,8 @@ var SITE_AD_SLOTS = {
   side:   '',   // sidebar square (desktop)
   wide:   '',   // banner under "Ready to Play"
   infeed: '',   // banner between the info sections
-  page:   ''    // banner on the Game guide and Privacy pages
+  page:   '',   // banner on the Game guide and Privacy pages
+  wait:   ''    // banner on the PLAY loading screen (shown while the 5 s countdown runs)
 };
 (function(){
   var CLIENT='ca-pub-5025566183652379';

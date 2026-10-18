@@ -49,6 +49,8 @@
       else location.href=u.href}
     if(game){
       document.body.appendChild(overlay());var t=WAIT,el=document.getElementById('agT');
+      /* banner on the loading screen when a slot id is set in site-ads.js (SITE_AD_SLOTS.wait) */
+      try{var slot=window.SITE_AD_SLOTS&&SITE_AD_SLOTS.wait;if(slot&&!document.getElementById('agAd')){var d=document.createElement('div');d.id='agAd';d.style.cssText='width:min(336px,80vw);min-height:250px;margin-top:6px';d.innerHTML='<ins class="adsbygoogle" style="display:block;width:100%;min-height:250px" data-ad-client="'+CLIENT+'" data-ad-slot="'+slot+'" data-ad-format="rectangle"></ins>';gate.querySelector('.b').appendChild(d);(window.adsbygoogle=window.adsbygoogle||[]).push({})}}catch(x){}
       (function tick(){if(el)el.textContent=t>0?'Starting in '+t+'…':'Starting…';if(t--<=0){waited=true;go();return}setTimeout(tick,1000)})();
     }
     if(window.__h5Ready){
