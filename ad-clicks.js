@@ -15,6 +15,9 @@
   window.adsbygoogle=window.adsbygoogle||[];
   if(typeof window.adBreak!=='function'){window.adBreak=window.adConfig=function(o){window.adsbygoogle.push(o)}}
   try{adConfig({preloadAdBreaks:'on',sound:'on',onReady:function(){window.__h5Ready=true}})}catch(e){}
+  /* Arriving on the site: a full-screen "preroll" ad first (H5 Games Ads), once per visit */
+  try{if(!sessionStorage.getItem('mw_preroll')){sessionStorage.setItem('mw_preroll','1');adBreak({type:'preroll',adBreakDone:function(){}})}}catch(e){}
+  var WAIT=5; /* seconds on the PLAY loading screen while the ad loads/plays */
 
   var gate=null;
   function overlay(){
@@ -26,21 +29,31 @@
       '#adGate i{width:42px;height:42px;border:6px solid #555;border-top-color:#7fcf3f;animation:agS 1s steps(8) infinite}@keyframes agS{to{transform:rotate(360deg)}}';
     document.head.appendChild(st);
     gate=document.createElement('div');gate.id='adGate';
-    gate.innerHTML='<div class="b"><i></i><b>Loading Minecraft Java…</b><span>A short ad keeps the game free</span></div>';
+    gate.innerHTML='<div class="b"><i></i><b>Loading Minecraft Java…</b><span>A short ad keeps the game free</span><span id="agT"></span></div>';
     return gate;
   }
   document.addEventListener('click',function(e){
     if(e.defaultPrevented||e.button!==0||e.ctrlKey||e.metaKey||e.shiftKey||e.altKey)return;
     var a=e.target.closest&&e.target.closest('a[href]');if(!a||a.target==='_blank'||a.hasAttribute('download'))return;
+    if(a.hasAttribute('data-adpass'))return;
     var u;try{u=new URL(a.href,location.href)}catch(x){return}
     if(u.origin!==location.origin)return;
     if(u.pathname===location.pathname&&u.search===location.search&&u.hash)return; /* same-page anchor */
-    if(!window.__h5Ready)return;                                               /* let the vignette handle it */
+    var game=/^\/MinecraftWeb\//.test(u.pathname);
+    if(!game&&!window.__h5Ready)return;                                        /* website pages: vignette handles it */
     e.preventDefault();
-    var game=/^\/MinecraftWeb\//.test(u.pathname),done=false,showing=false;
-    function go(){if(done)return;done=true;location.href=u.href}
-    if(game)document.body.appendChild(overlay());
-    try{adBreak({type:game?'start':'browse',name:game?'play_button':'site_link',beforeAd:function(){showing=true},adBreakDone:function(){setTimeout(go,120)}})}catch(x){go()}
-    setTimeout(function(){if(!showing)go()},game?4000:1500);
+    var done=false,showing=false,waited=!game,adDone=false;
+    function go(){if(done||!waited||!adDone)return;done=true;
+      /* leave through a real link so AdSense's vignette (full-screen ad between pages) can still show */
+      if(!window.__h5Ready){var l=document.createElement('a');l.href=u.href;l.setAttribute('data-adpass','1');l.style.display='none';document.body.appendChild(l);l.click();setTimeout(function(){location.href=u.href},2500)}
+      else location.href=u.href}
+    if(game){
+      document.body.appendChild(overlay());var t=WAIT,el=document.getElementById('agT');
+      (function tick(){if(el)el.textContent=t>0?'Starting in '+t+'…':'Starting…';if(t--<=0){waited=true;go();return}setTimeout(tick,1000)})();
+    }
+    if(window.__h5Ready){
+      try{adBreak({type:game?'start':'browse',name:game?'play_button':'site_link',beforeAd:function(){showing=true},adBreakDone:function(){adDone=true;setTimeout(go,120)}})}catch(x){adDone=true;go()}
+      setTimeout(function(){if(!showing){adDone=true;go()}},game?WAIT*1000+1500:1500);
+    }else{adDone=true;go()}
   },false);
 })();
