@@ -66,17 +66,19 @@ html.fromGame .ready{display:block}
 .inst b{display:block;font-size:13px;font-weight:700;line-height:1.25}.inst span{font-size:11px;color:var(--muted)}
 .inst i{font-style:normal;color:#ddd;margin-left:34px;font-size:12px}
 .user{font-weight:700;font-size:13px}
-.play{position:absolute;left:50%;top:-13px;transform:translateX(-50%);display:flex;align-items:center;justify-content:center;width:235px;height:53px;color:#fff;text-decoration:none;
-  background:linear-gradient(var(--g-hi),var(--g));border:2px solid #000;box-shadow:inset 0 3px 0 var(--g-top),inset 3px 0 0 var(--g-edge),inset -3px 0 0 var(--g-edge),inset 0 -3px 0 var(--g-dk);
-  font-family:'Minecraft Seven',system-ui,sans-serif;font-size:22px;letter-spacing:.08em;-webkit-text-stroke:1.1px #fff;text-shadow:2px 2px 0 rgba(0,0,0,.35)}
-.play:hover{background:linear-gradient(#00a352,#009448)}
-.play:active{box-shadow:inset 0 3px 0 var(--g-dk),inset 3px 0 0 var(--g-edge),inset -3px 0 0 var(--g-edge);padding-top:3px}
+.play{position:absolute;left:50%;top:-13px;transform:translateX(-50%);display:block;width:235px;height:53px;padding:2px 2px;background:#000;text-decoration:none;
+  clip-path:polygon(4px 0,calc(100% - 4px) 0,calc(100% - 4px) 2px,calc(100% - 2px) 2px,calc(100% - 2px) 4px,100% 4px,100% calc(100% - 4px),calc(100% - 2px) calc(100% - 4px),calc(100% - 2px) calc(100% - 2px),calc(100% - 4px) calc(100% - 2px),calc(100% - 4px) 100%,4px 100%,4px calc(100% - 2px),2px calc(100% - 2px),2px calc(100% - 4px),0 calc(100% - 4px),0 4px,2px 4px,2px 2px,4px 2px)}
+.play span{clip-path:polygon(2px 0,calc(100% - 2px) 0,100% 2px,100% calc(100% - 2px),calc(100% - 2px) 100%,2px 100%,0 calc(100% - 2px),0 2px);display:flex;align-items:center;justify-content:center;width:100%;height:100%;color:#fff;background:linear-gradient(var(--g-hi),var(--g));
+  box-shadow:inset 0 3px 0 var(--g-top),inset 3px 0 0 var(--g-edge),inset -3px 0 0 var(--g-edge),inset 0 -4px 0 var(--g-dk);
+  font-family:'Minecraft Seven',system-ui,sans-serif;font-size:22px;letter-spacing:.08em;-webkit-text-stroke:1.1px #fff;text-shadow:2px 2px 0 rgba(0,0,0,.3)}
+.play:hover span{background:linear-gradient(#00a352,#009448)}
+.play:active span{box-shadow:inset 0 3px 0 var(--g-dk),inset 3px 0 0 var(--g-edge),inset -3px 0 0 var(--g-edge);padding-top:3px}
 /* ---- news feed ---- */
 .feed{background:var(--feed);flex:1;padding:30px 20px 10px}
 .feedin{max-width:800px;margin:0 auto;display:grid;gap:28px}
-.news{display:grid;grid-template-columns:350px 1fr;background:var(--card);text-decoration:none;color:#fff;min-height:216px}
-.news .pic{background:#26103d url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Crect x='6' y='9' width='4' height='4' fill='%23c58bff' opacity='.55'/%3E%3Crect x='28' y='26' width='3' height='3' fill='%23ffffff' opacity='.35'/%3E%3C/svg%3E");padding:36px 32px;display:flex;align-items:center}
-.news .pic img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;border:3px solid #7a3fb5;outline:2px solid #000}
+.news{display:grid;grid-template-columns:350px 1fr;overflow:hidden;background:var(--card);text-decoration:none;color:#fff;min-height:216px}
+.news .pic{background:#000;min-height:216px}
+.news .pic img{width:100%;height:100%;object-fit:cover;display:block}
 .news .txt{padding:24px 24px 22px;display:flex;flex-direction:column;align-items:flex-start;gap:9px}
 .news h3{margin:0;font-family:'Minecraft Seven',system-ui,sans-serif;font-weight:normal;font-size:25px;line-height:1.2;text-transform:uppercase;letter-spacing:.03em;-webkit-text-stroke:1px #fff}
 .news .meta{font-size:12px;color:#d6d6d6;display:flex;gap:10px;align-items:center}.news .meta span{background:#313131;padding:2px 6px;color:#fff}
@@ -99,7 +101,7 @@ footer{background:var(--feed);color:#a9a9a9;font-size:12px;text-align:center;pad
   .top{height:auto;padding:12px 14px 0}.tabs{gap:22px}.tabs a{font-size:15px}.qp span{display:none}.qp{margin-bottom:8px}.qp img{width:34px;height:34px}
   .hero{height:56vw;min-height:220px;max-height:60vh}
   .bar{height:auto;padding:52px 12px 12px}.play{top:-14px;width:min(235px,64vw)}
-  .feed{padding:20px 10px}.news{grid-template-columns:1fr}.news .pic{padding:18px}.news h3{font-size:19px}
+  .feed{padding:20px 10px}.news{grid-template-columns:1fr}.news .pic{min-height:0;aspect-ratio:16/9}.news h3{font-size:19px}
   .info{padding-left:10px;padding-right:10px}
 }
 @media(max-height:500px){.hero{height:calc(100vh - 150px);min-height:160px}.mnav{display:none}.top h6{display:none}}
@@ -147,7 +149,7 @@ footer{background:var(--feed);color:#a9a9a9;font-size:12px;text-align:center;pad
   </div>
   <div class="bar">
     <a class="inst" href="/guide.html"><img src="/MinecraftWeb/assets/icon/icon-192.png" alt=""><div><b>Latest release</b><span>26.1</span></div><i>&#8964;</i></a>
-    <a class="play" href="/MinecraftWeb/" aria-label="Play Minecraft Java now">PLAY</a>
+    <a class="play" href="/MinecraftWeb/" aria-label="Play Minecraft Java now"><span><svg class="pl" viewBox="0 0 28 8" width="60" height="17" aria-hidden="true" shape-rendering="crispEdges"><path fill="#0b4d2b" d="M1 1h1v1h-1zM2 1h1v1h-1zM3 1h1v1h-1zM4 1h1v1h-1zM5 1h1v1h-1zM1 2h1v1h-1zM2 2h1v1h-1zM5 2h1v1h-1zM6 2h1v1h-1zM1 3h1v1h-1zM2 3h1v1h-1zM5 3h1v1h-1zM6 3h1v1h-1zM1 4h1v1h-1zM2 4h1v1h-1zM3 4h1v1h-1zM4 4h1v1h-1zM5 4h1v1h-1zM1 5h1v1h-1zM2 5h1v1h-1zM1 6h1v1h-1zM2 6h1v1h-1zM1 7h1v1h-1zM2 7h1v1h-1zM8 1h1v1h-1zM9 1h1v1h-1zM8 2h1v1h-1zM9 2h1v1h-1zM8 3h1v1h-1zM9 3h1v1h-1zM8 4h1v1h-1zM9 4h1v1h-1zM8 5h1v1h-1zM9 5h1v1h-1zM8 6h1v1h-1zM9 6h1v1h-1zM8 7h1v1h-1zM9 7h1v1h-1zM10 7h1v1h-1zM11 7h1v1h-1zM12 7h1v1h-1zM13 7h1v1h-1zM16 1h1v1h-1zM17 1h1v1h-1zM18 1h1v1h-1zM19 1h1v1h-1zM15 2h1v1h-1zM16 2h1v1h-1zM19 2h1v1h-1zM20 2h1v1h-1zM15 3h1v1h-1zM16 3h1v1h-1zM19 3h1v1h-1zM20 3h1v1h-1zM15 4h1v1h-1zM16 4h1v1h-1zM17 4h1v1h-1zM18 4h1v1h-1zM19 4h1v1h-1zM20 4h1v1h-1zM15 5h1v1h-1zM16 5h1v1h-1zM19 5h1v1h-1zM20 5h1v1h-1zM15 6h1v1h-1zM16 6h1v1h-1zM19 6h1v1h-1zM20 6h1v1h-1zM15 7h1v1h-1zM16 7h1v1h-1zM19 7h1v1h-1zM20 7h1v1h-1zM22 1h1v1h-1zM23 1h1v1h-1zM26 1h1v1h-1zM27 1h1v1h-1zM22 2h1v1h-1zM23 2h1v1h-1zM26 2h1v1h-1zM27 2h1v1h-1zM22 3h1v1h-1zM23 3h1v1h-1zM26 3h1v1h-1zM27 3h1v1h-1zM23 4h1v1h-1zM24 4h1v1h-1zM25 4h1v1h-1zM26 4h1v1h-1zM24 5h1v1h-1zM25 5h1v1h-1zM24 6h1v1h-1zM25 6h1v1h-1zM24 7h1v1h-1zM25 7h1v1h-1z"/><path fill="#fff" d="M0 0h1v1h-1zM1 0h1v1h-1zM2 0h1v1h-1zM3 0h1v1h-1zM4 0h1v1h-1zM0 1h1v1h-1zM1 1h1v1h-1zM4 1h1v1h-1zM5 1h1v1h-1zM0 2h1v1h-1zM1 2h1v1h-1zM4 2h1v1h-1zM5 2h1v1h-1zM0 3h1v1h-1zM1 3h1v1h-1zM2 3h1v1h-1zM3 3h1v1h-1zM4 3h1v1h-1zM0 4h1v1h-1zM1 4h1v1h-1zM0 5h1v1h-1zM1 5h1v1h-1zM0 6h1v1h-1zM1 6h1v1h-1zM7 0h1v1h-1zM8 0h1v1h-1zM7 1h1v1h-1zM8 1h1v1h-1zM7 2h1v1h-1zM8 2h1v1h-1zM7 3h1v1h-1zM8 3h1v1h-1zM7 4h1v1h-1zM8 4h1v1h-1zM7 5h1v1h-1zM8 5h1v1h-1zM7 6h1v1h-1zM8 6h1v1h-1zM9 6h1v1h-1zM10 6h1v1h-1zM11 6h1v1h-1zM12 6h1v1h-1zM15 0h1v1h-1zM16 0h1v1h-1zM17 0h1v1h-1zM18 0h1v1h-1zM14 1h1v1h-1zM15 1h1v1h-1zM18 1h1v1h-1zM19 1h1v1h-1zM14 2h1v1h-1zM15 2h1v1h-1zM18 2h1v1h-1zM19 2h1v1h-1zM14 3h1v1h-1zM15 3h1v1h-1zM16 3h1v1h-1zM17 3h1v1h-1zM18 3h1v1h-1zM19 3h1v1h-1zM14 4h1v1h-1zM15 4h1v1h-1zM18 4h1v1h-1zM19 4h1v1h-1zM14 5h1v1h-1zM15 5h1v1h-1zM18 5h1v1h-1zM19 5h1v1h-1zM14 6h1v1h-1zM15 6h1v1h-1zM18 6h1v1h-1zM19 6h1v1h-1zM21 0h1v1h-1zM22 0h1v1h-1zM25 0h1v1h-1zM26 0h1v1h-1zM21 1h1v1h-1zM22 1h1v1h-1zM25 1h1v1h-1zM26 1h1v1h-1zM21 2h1v1h-1zM22 2h1v1h-1zM25 2h1v1h-1zM26 2h1v1h-1zM22 3h1v1h-1zM23 3h1v1h-1zM24 3h1v1h-1zM25 3h1v1h-1zM23 4h1v1h-1zM24 4h1v1h-1zM23 5h1v1h-1zM24 5h1v1h-1zM23 6h1v1h-1zM24 6h1v1h-1z"/></svg></span></a>
     <span class="user">Player</span>
   </div>
   <div class="feed"><div class="feedin">
