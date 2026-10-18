@@ -5,9 +5,14 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Minecraft Web – play in your browser</title>
 <meta name="description" content="A Java Edition–style block building game you can play in your browser on desktop, laptop or phone. No download, no install.">
+<link rel="preconnect" href="https://pagead2.googlesyndication.com" crossorigin>
+<link rel="preconnect" href="https://googleads.g.doubleclick.net" crossorigin>
+<link rel="preconnect" href="https://tpc.googlesyndication.com" crossorigin>
+<link rel="preconnect" href="https://www.google.com" crossorigin>
+<link rel="dns-prefetch" href="https://fundingchoicesmessages.google.com">
 <meta name="google-adsense-account" content="ca-pub-5025566183652379">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5025566183652379" data-ad-frequency-hint="30s" crossorigin="anonymous"></script>
-<script>window.adsbygoogle=window.adsbygoogle||[];var adBreak=adConfig=function(o){adsbygoogle.push(o)};adConfig({preloadAdBreaks:'on',sound:'on'});</script>
+<script>window.adsbygoogle=window.adsbygoogle||[];var adBreak=adConfig=function(o){adsbygoogle.push(o)};adConfig({preloadAdBreaks:'on',sound:'on',onReady:function(){window.__h5Ready=true}});</script>
 <link rel="icon" type="image/png" sizes="32x32" href="/MinecraftWeb/assets/icon/icon-32.png">
 <style>
 @font-face{font-family:'Minecraft Seven';src:url('/MinecraftWeb/assets/fonts/Minecraft-Seven.woff') format('woff');font-display:swap}
@@ -61,6 +66,7 @@ footer{color:var(--muted);font-size:13px;text-align:center;padding:24px 16px 40p
 <meta name="apple-mobile-web-app-title" content="Minecraft Web">
 <meta name="theme-color" content="#141414">
 <script src="/install.js" defer></script>
+<script src="/site-ads.js" defer></script>
 </head>
 <body>
 <div class="app">
@@ -72,7 +78,7 @@ footer{color:var(--muted);font-size:13px;text-align:center;padding:24px 16px 40p
   <a href="/guide.html">Game guide</a>
   <a href="#about">About</a>
   <a href="/privacy.html">Privacy</a>
-  <div class="ad-side"><!-- Auto ads may place a unit here --></div>
+  <div class="ad-side" data-ad="side"><!-- Auto ads may place a unit here --></div>
 </aside>
 <main>
   <div class="hero">
@@ -96,7 +102,7 @@ footer{color:var(--muted);font-size:13px;text-align:center;padding:24px 16px 40p
       <a class="card" href="/MinecraftWeb/"><img src="/img/debug.jpg" alt="F3 debug screen" loading="lazy"><div><b>Java F3 screen</b><span>Like the real thing</span></div></a>
     </div>
   </div>
-  <div class="ad-wide"><!-- Auto ads may place a unit here --></div>
+  <div class="ad-wide" data-ad="wide"><!-- Auto ads may place a unit here --></div>
   <div class="info" id="about">
   <section>
     <h2>What you can do</h2>
@@ -110,6 +116,7 @@ footer{color:var(--muted);font-size:13px;text-align:center;padding:24px 16px 40p
     </ul>
   </section>
 
+  <div class="ad-wide" data-ad="infeed" style="margin-left:0;margin-right:0"></div>
   <section id="install">
     <h2>Install on your phone</h2>
     <p>Add Minecraft Web to your Home Screen and it opens full-screen like an app — no browser bars, more room to play.</p>
@@ -196,6 +203,9 @@ footer{color:var(--muted);font-size:13px;text-align:center;padding:24px 16px 40p
   document.addEventListener('click',function(e){
     var a=e.target.closest&&e.target.closest('a[href="/MinecraftWeb/"]');
     if(!a||a.id==='agGo'||e.ctrlKey||e.metaKey||e.shiftKey)return;
+    /* Games ads not active (yet): let the link navigate normally so AdSense Auto ads can show its
+       full-screen vignette ad between the two pages */
+    if(!window.__h5Ready)return;
     e.preventDefault();gate.hidden=false;
     setTimeout(function(){go.style.visibility='visible'},8000);
     try{adBreak({type:'start',name:'play_button',beforeAd:function(){window.__agShowing=true},adBreakDone:function(){setTimeout(open,150)}})}catch(err){open()}
