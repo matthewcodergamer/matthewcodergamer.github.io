@@ -44,6 +44,8 @@
     e.preventDefault();
     var done=false,showing=false,waited=!game,adDone=false;
     function go(){if(done||!waited||!adDone)return;done=true;
+      /* the game only opens with a fresh PLAY pass (checked by MinecraftWeb/index.html) */
+      if(game){try{localStorage.setItem('mw_play_pass',String(Date.now()))}catch(x){}}
       /* leave through a real link so AdSense's vignette (full-screen ad between pages) can still show */
       if(!window.__h5Ready){var l=document.createElement('a');l.href=u.href;l.setAttribute('data-adpass','1');l.style.display='none';document.body.appendChild(l);l.click();setTimeout(function(){location.href=u.href},2500)}
       else location.href=u.href}
