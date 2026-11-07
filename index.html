@@ -272,7 +272,44 @@ sudo ufw status verbose</code></pre>
 <p>Uptime is a routine, not a single setting. Patch Ubuntu and Java, test Paper and plugin updates in a staging copy, monitor free disk space, and store backups somewhere other than the VPS holding the live world. Test a restore periodically; a backup that has never been restored is only an assumption. Keep an incident checklist with the provider console, backup location, service commands, and last known-good JAR so recovery is methodical rather than improvised.</p>
 </section>
 
-<!-- PLACEHOLDER FOR PART 3 -->
+<h2>Hosting provider comparison</h2>
+<p>Hosting prices vary with processor generation, location, support level, storage, and the provider’s definition of included DDoS protection. These ranges are planning estimates rather than live quotes: compare the CPU model and single-thread performance, storage type, traffic limits, backup policy, and renewal price before choosing a plan. A larger RAM number does not automatically mean a faster Minecraft server.</p>
+<table>
+  <tr><th>Provider Type</th><th>Approx Price</th><th>RAM</th><th>Root Access</th><th>DDoS</th></tr>
+  <tr><td>Shared Game Hosting</td><td>$10-$25</td><td>4-8 GB</td><td>No</td><td>Yes</td></tr>
+  <tr><td>KVM VPS (Budget)</td><td>$5-$15</td><td>4-8 GB</td><td>Yes</td><td>Optional</td></tr>
+  <tr><td>KVM VPS (Premium)</td><td>$20-$40</td><td>8-16 GB</td><td>Yes</td><td>Yes</td></tr>
+  <tr><td>Bare Metal</td><td>$60+</td><td>32 GB+</td><td>Yes</td><td>Enterprise</td></tr>
+</table>
+<p>Choose shared game hosting if you want a simple control panel, managed setup, and support without administering Linux. A budget KVM VPS suits a small Paper server when you are comfortable maintaining the operating system and firewall. A premium VPS is a better fit for a growing community, heavier plugins, or more headroom; bare metal makes sense for sustained high player counts, several servers, or demanding workloads that justify the higher cost. Check the actual CPU rather than buying by RAM alone, and verify exactly what “DDoS protection” covers.</p>
+
+<h2>Monthly cost breakdown</h2>
+<p>For a small, lightly modded Paper server, a realistic starting budget is often about $5-$15 per month for a budget VPS, with backups or extra storage potentially adding to the bill. A managed shared host may cost around $10-$25 and can be worth the difference if you value a control panel and support. A stronger VPS commonly lands around $20-$40; dedicated hardware starts higher and may also bring setup fees, taxes, backup charges, or bandwidth costs. Budget separately for off-site backups and a domain if you want one, and check introductory versus renewal pricing before paying annually.</p>
+
+<h2>Common mistakes</h2>
+<ul>
+  <li><strong>Allocating all RAM to <code>-Xmx</code>:</strong> Linux, Java’s non-heap memory, and other services also need memory. Leave a sensible reserve instead of assigning the entire VPS to the Minecraft heap.</li>
+  <li><strong>Using HDD storage:</strong> World loading, chunk generation, and saves can involve many small reads and writes. Prefer SSD or NVMe storage for a smoother server experience.</li>
+  <li><strong>Running modpacks on 2 GB:</strong> Large modpacks and their startup process generally need more memory. Check the pack’s requirements and allow extra headroom rather than expecting a 2 GB plan to handle it.</li>
+  <li><strong>No backups:</strong> Hardware failure, accidental commands, corruption, or a bad update can destroy a world. Keep scheduled backups off the server and periodically test restoring one.</li>
+  <li><strong>Opening the world before pre-generation:</strong> Unexplored terrain can trigger expensive chunk generation while players are online. Pre-generate the expected play area with a tool such as Chunky, then expand it in controlled stages.</li>
+</ul>
+
+<h2>Frequently Asked Questions</h2>
+<p><strong>How much RAM do I need for 20 players?</strong><br>
+For a typical Paper server with plugins, 4-6 GB of heap is a reasonable starting estimate for around 20 players. Actual needs depend on plugin load, view distance, world activity, and how much exploration happens at once, so monitor memory and tick performance after launch.</p>
+
+<p><strong>Can I run a Paper server on a 4 GB VPS?</strong><br>
+Yes. A 4 GB VPS can be suitable for a small server of roughly 10-15 players with a modest plugin set and carefully tuned settings. Do not give all 4 GB to <code>-Xmx</code>; the operating system and Java need memory too, and a busy world may require a larger plan.</p>
+
+<p><strong>Do I need a dedicated IP?</strong><br>
+No. A dedicated IP is optional. It can make DNS setup and sharing a server address more straightforward, but a domain name can also point to a server address, and a non-default port may need to be included when connecting.</p>
+
+<p><strong>Is a VPS better than Realms?</strong><br>
+A VPS is generally more flexible if you want Paper plugins, control over Java and server settings, custom backups, and the ability to manage capacity yourself. Realms is simpler to operate because hosting is managed for you. The better choice depends on whether you value customization and administration or convenience.</p>
+
+<p><strong>How much CPU does a Minecraft server need?</strong><br>
+Prioritize strong single-core performance over a high advertised core count. Minecraft’s main server tick work is sensitive to the speed of one core, although additional cores can help with other tasks and services. Look for a recent CPU with good sustained performance, not just a large number of vCPUs.</p>
   </div>
   <footer><p><a href="/guides/">Server guides</a> · <a href="/guide.html">Game guide</a> · <a href="/about.html">About</a> · <a href="/editorial-policy.html">Editorial policy</a> · <a href="/privacy.html">Privacy</a> · <a href="/terms.html">Terms</a> · <a href="/contact.html">Contact</a> · <a href="https://github.com/matthewcodergamer/MinecraftWeb">Source on GitHub</a></p><p>Minecraft Web is an unofficial fan project. It is not affiliated with, endorsed by or associated with Mojang Studios or Microsoft. Minecraft is a trademark of Mojang Studios. Server guides name hosting companies for identification only. They are not affiliate links.</p></footer>
 </main>
