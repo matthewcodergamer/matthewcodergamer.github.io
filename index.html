@@ -195,7 +195,84 @@ footer{background:var(--feed);color:#a9a9a9;font-size:12px;text-align:center;pad
     <p>A home server gives you physical control and can reuse hardware you already own, but it also makes you responsible for power, cooling, router configuration, operating-system updates, and a stable internet connection. Residential upload capacity, changing public IP addresses, carrier-grade NAT, and the lack of upstream DDoS protection can make public hosting difficult. A bare-metal dedicated server provides the most direct hardware control and can make sense for a large, consistently busy community, but it usually costs more and requires more administration. For a growing community that needs root access without managing a physical machine, a <strong>KVM VPS with a clearly specified dedicated-vCPU allocation, adequate RAM, NVMe storage, and network-level DDoS protection</strong> is often the practical middle ground. It gives you control over Java, Paper, firewall rules, backups, and plugins while leaving the physical host and network infrastructure to the provider.</p>
   </section>
 
-  <!-- PLACEHOLDER FOR PART 2 -->
+  <section id="install-paper">
+<h2>Step-by-step Paper install on Ubuntu</h2>
+<p>These steps assume a fresh Ubuntu 22.04 or 24.04 VPS, SSH access through an account with sudo privileges, a public IP or DNS name, and enough free disk space for the server JAR, world files, logs, and backups. Paper 1.21 requires Java 21, so install a Java 21 runtime first. Keep Ubuntu updated, use a firewall, and do not run the Minecraft process as root. The commands use a dedicated Linux account named <code>minecraft</code>; run package and service administration commands from your normal sudo-enabled account.</p>
+<pre><code>sudo apt update
+sudo apt install openjdk-21-jre-headless</code></pre>
+<p>Create a separate account so the Minecraft process does not inherit your personal account's permissions. Create its server directory, switch into the account, and download the Paper JAR. This URL is the specific Paper 1.21 build supplied for this example; before deploying a new world, check Paper's official downloads for a current supported build and update the filename accordingly. Keep a copy of the previous JAR and back up the world before replacing a production server version.</p>
+<pre><code>sudo adduser --system --home /opt/minecraft --group minecraft
+sudo install -d -o minecraft -g minecraft /opt/minecraft/server
+sudo -u minecraft -H bash
+cd /opt/minecraft/server
+wget https://api.papermc.io/v2/projects/paper/versions/1.21/builds/130/downloads/paper-1.21-130.jar -O paper.jar</code></pre>
+<p>Start the server only after reviewing the Minecraft End User License Agreement. The server requires explicit acceptance before it will run. Set <code>eula=true</code> only if you have read and agree to the EULA; do not treat this file as a way to bypass its terms. Keep the server files owned by the dedicated account and avoid granting the Minecraft process write access to unrelated directories.</p>
+<pre><code>cd /opt/minecraft/server
+printf 'eula=true\n' > eula.txt</code></pre>
+<p>Create a start script to keep the Java command and heap settings in one place. This first-run example uses a 4 GB heap; adjust the values to the VPS size and memory guidance below. The script changes into the server directory before launching Paper so that world data and configuration files are created in the intended location.</p>
+<pre><code>cat > /opt/minecraft/server/start.sh <<'EOF'
+#!/usr/bin/env bash
+set -e
+cd /opt/minecraft/server
+exec java -Xms4G -Xmx4G -jar paper.jar nogui
+EOF
+chmod 750 /opt/minecraft/server/start.sh
+exit</code></pre>
+<p>Set ownership and create a systemd service so the server can start at boot, restart after an unexpected exit, and write logs to the system journal. The service runs as <code>minecraft</code>, uses the server directory as its working directory, and allows time for a graceful shutdown. After saving the unit, reload systemd, enable the service, and inspect its status and logs.</p>
+<pre><code>sudo chown -R minecraft:minecraft /opt/minecraft
+sudo chmod 750 /opt/minecraft/server/start.sh
+sudo tee /etc/systemd/system/minecraft.service > /dev/null <<'EOF'
+[Unit]
+Description=Minecraft Paper Server
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=minecraft
+Group=minecraft
+WorkingDirectory=/opt/minecraft/server
+ExecStart=/opt/minecraft/server/start.sh
+Restart=on-failure
+RestartSec=10
+TimeoutStopSec=120
+KillSignal=SIGINT
+
+[Install]
+WantedBy=multi-user.target
+EOF
+sudo systemctl daemon-reload
+sudo systemctl enable --now minecraft
+sudo systemctl status minecraft --no-pager
+sudo journalctl -u minecraft -n 80 --no-pager</code></pre>
+<p>Allow the default Java Edition server port, <strong>TCP 25565</strong>, through both the Ubuntu firewall and any firewall in the VPS provider's control panel. Standard Java Edition connections use TCP; do not open UDP 25565 unless you have installed an additional service that specifically requires it, such as a compatible Bedrock bridge. Allow SSH before enabling UFW so you do not lock yourself out. For a public server, use provider-level DDoS mitigation, SSH keys, and restrictive firewall rules; do not expose database or panel ports that players do not need.</p>
+<pre><code>sudo ufw allow OpenSSH
+sudo ufw allow 25565/tcp
+sudo ufw enable
+sudo ufw status verbose</code></pre>
+<p>Test a connection before sharing the address. If the service fails, inspect <code>journalctl -u minecraft</code>, confirm Java 21 is installed, check file ownership, and verify the JAR filename. If local connections work but external players cannot join, check the provider firewall and public address; JVM flags will not fix a blocked port. Keep a known-good JAR and a tested backup before upgrading Paper or installing plugins.</p>
+</section>
+
+<section id="jvm-flags">
+<h2>Aikar's JVM flags</h2>
+<p>The JVM's default garbage-collection settings are designed for a broad range of Java applications, not specifically for a Minecraft server that must complete game ticks predictably. Poor heap sizing and large collection cycles can cause pauses that players experience as delayed block updates, rubber-banding, or short periods of unresponsiveness. A tuned G1GC profile can make memory collection more predictable for a suitable heap, but flags cannot compensate for a saturated CPU, an overloaded plugin, excessive entities, or slow storage. Treat this as a starting profile for Paper on Java 21 and test it against your actual workload; it does not guarantee a fixed TPS.</p>
+<pre><code>java -Xms6G -Xmx6G -XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 -XX:G1HeapRegionSize=8M -XX:G1ReservePercent=20 -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=4 -XX:InitiatingHeapOccupancyPercent=15 -XX:G1MixedGCLiveThresholdPercent=90 -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 -XX:+PerfDisableSharedMem -XX:MaxTenuringThreshold=1 -Dusing.aikars.flags=https://mcflags.emc.gs -Daikars.new.flags=true -jar paper.jar nogui</code></pre>
+<p><strong>First, do not allocate all VPS memory to <code>-Xmx</code>.</strong> The Java heap is only one part of the process. Linux also needs memory for the kernel and filesystem cache, while the JVM uses native allocations and thread stacks; monitoring, networking, and backup tools need room too. On an 8 GB VPS, a 6–6.5 GB heap can be a reasonable starting point for some Paper workloads, leaving roughly 1.5–2 GB for the operating system and non-heap use. On a 4 GB VPS, do not copy the 6G example: start with a smaller heap, perhaps around 2.5–3 GB, and monitor memory pressure. If the machine swaps heavily or the kernel kills Java for running out of memory, reduce the heap or move to a larger plan.</p>
+<p><strong>Second, keep <code>-Xms</code> equal to <code>-Xmx</code> for this fixed-heap setup.</strong> Matching the initial and maximum heap gives the JVM a consistent heap size instead of repeatedly expanding it as workload changes. That is why the sample uses <code>-Xms6G -Xmx6G</code>. Equal values do not mean the heap should consume the whole machine: both values must fit comfortably inside physical RAM. Change them together when resizing, restart during a maintenance window, and compare memory use, garbage-collection behavior, and tick health after the change.</p>
+</section>
+
+<section id="uptime-checklist">
+<h2>Optimization checklist for 24/7 uptime</h2>
+<ul>
+<li><strong>Pre-generate with Chunky.</strong> Exploring new terrain can trigger chunk generation while players expect normal gameplay. Use the Chunky plugin to pre-generate a defined world border before opening the server, then expand it deliberately as the community needs more space. Schedule heavy generation outside peak hours and watch CPU, disk I/O, and free storage while it runs. Pre-generation moves much of that work out of live play; it does not remove the need to monitor the server.</li>
+<li><strong>Start with view-distance 6–8 and tune simulation distance separately.</strong> In <code>server.properties</code>, a view distance of 6–8 chunks is a practical starting range for many small-to-medium Paper worlds. Simulation distance controls how far away entities and other world mechanics are processed; start around 4–6 and raise it only when the CPU has headroom. Higher values increase world-data and simulation work, so do not max both settings by default. Change one setting at a time and compare tick health with a similar player count.</li>
+<li><strong>Schedule maintenance without interrupting saves.</strong> Use a planned window for Paper and plugin updates. A cron entry that kills Java is unsafe because it can interrupt world saves. Prefer a systemd timer or maintenance script that sends a graceful stop through the server console, waits for shutdown to finish, verifies the service has stopped, and starts it again. If you administer the server in <code>tmux</code>, keep the session persistent and use the console's <code>stop</code> command rather than terminating the process abruptly. Back up before updates and retain logs for troubleshooting.</li>
+<li><strong>Configure Paper anti-xray and entity limits deliberately.</strong> Review Paper's anti-xray settings if players can expose valuable ores by inspecting terrain, and choose an engine mode and hidden-block list that fit your world. Set reasonable entity activation ranges, mob caps, and despawn behavior so farms do not accumulate thousands of active entities. Do not copy aggressive limits blindly: test villager trading, redstone, farms, and plugins so performance tuning does not break expected mechanics. Document each change so it can be rolled back.</li>
+<li><strong>Monitor <code>/tps</code> and investigate slow ticks.</strong> Check recent and longer-term averages instead of reacting to a brief dip during startup or world generation. A healthy server aims to sustain 20 ticks per second; when the average falls below 20, inspect timings or a profiler, CPU saturation, entity counts, plugin activity, garbage collection, and disk latency. TPS is an outcome, not a diagnosis. Record the time of a lag report, player count, recent changes, and relevant logs so recurring causes can be identified. Add an external uptime check that tests whether the server port responds, because a running process can still be unreachable.</li>
+</ul>
+<p>Uptime is a routine, not a single setting. Patch Ubuntu and Java, test Paper and plugin updates in a staging copy, monitor free disk space, and store backups somewhere other than the VPS holding the live world. Test a restore periodically; a backup that has never been restored is only an assumption. Keep an incident checklist with the provider console, backup location, service commands, and last known-good JAR so recovery is methodical rather than improvised.</p>
+</section>
+
+<!-- PLACEHOLDER FOR PART 3 -->
   </div>
   <footer><p><a href="/guides/">Server guides</a> · <a href="/guide.html">Game guide</a> · <a href="/about.html">About</a> · <a href="/editorial-policy.html">Editorial policy</a> · <a href="/privacy.html">Privacy</a> · <a href="/terms.html">Terms</a> · <a href="/contact.html">Contact</a> · <a href="https://github.com/matthewcodergamer/MinecraftWeb">Source on GitHub</a></p><p>Minecraft Web is an unofficial fan project. It is not affiliated with, endorsed by or associated with Mojang Studios or Microsoft. Minecraft is a trademark of Mojang Studios. Server guides name hosting companies for identification only. They are not affiliate links.</p></footer>
 </main>
