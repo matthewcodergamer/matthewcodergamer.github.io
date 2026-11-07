@@ -162,83 +162,40 @@ footer{background:var(--feed);color:#a9a9a9;font-size:12px;text-align:center;pad
   </div></div>
 <div class="info" id="about">
   <section>
-    <h2>What you can do</h2>
-    <ul>
-      <li>Explore generated worlds with plains, forests, deserts, savannas, snowy plains, hills, swamps and oceans.</li>
-      <li>Find villages, mineshafts, ruins and other structures.</li>
-      <li>Mine, craft, smelt and build in Survival, or build freely in Creative.</li>
-      <li>Meet animals and monsters that spawn by biome, time of day and light level.</li>
-      <li>Sleep in beds, sail boats, use buckets, bows and ender pearls, and type commands.</li>
-      <li>Turn on optional mods and resource packs from the in-game Mods and Resource Packs screens.</li>
-    </ul>
+    <h1>Minecraft Launcher &amp; 24/7 Paper Server Guide</h1>
+    <p><em>Last updated: November 2026</em></p>
+    <p>Hit Play to launch Minecraft. Below, you will find the full guide to running your own 24/7 Paper server — practical configuration guidance, realistic RAM sizing, and the JVM settings that help keep tick time stable on a VPS.</p>
+  </section>
+
+  <section id="why-paper">
+    <h2>Why Paper instead of Vanilla or Realms for a 24/7 server</h2>
+    <p>Vanilla is the reference implementation for a Java Edition server, and it is a sensible starting point for a small private world. As the world grows, however, the server has more chunks to load, entities to tick, block updates to process, and player actions to handle. <strong>Paper</strong> is a server implementation built on the Minecraft server code with performance work, configuration options, and a plugin API. It can reduce avoidable server work and gives an administrator more control over gameplay systems that affect tick time. Paper does not make a slow CPU fast, and it cannot eliminate the cost of a huge view distance or an overloaded world, but it gives you practical tools to tune a long-running server without changing the client.</p>
+    <p>Realms is convenient when the priority is a managed, low-maintenance world for a small group. You do not administer the underlying machine, install arbitrary server plugins, choose the Java heap, or tune the same range of server settings available on a self-managed Paper host. A dedicated Paper server is a better fit when you want plugins, scheduled maintenance, custom permissions, a controlled backup process, or room to change hardware as the community grows. The trade-off is responsibility: you must secure the operating system, keep the server updated, monitor resource use, and test backups. Choose Paper because you need that control, not because the word “optimized” guarantees a particular number of players.</p>
+  </section>
+
+  <section id="sizing">
+    <h2>Realistic RAM, CPU, storage and bandwidth sizing</h2>
+    <p>Use the table as a starting point for a newly provisioned server, not as a guarantee. Actual memory use depends on the Minecraft version, world size, loaded chunks, plugins or mods, entity counts, player travel, and the number of players active at the same time. The minimum column is a constrained starting point; the recommended column leaves more room for the Java heap and normal workload variation.</p>
+    <table>
+      <tr><th>Server Type</th><th>Players</th><th>Min RAM</th><th>Rec. RAM</th><th>Storage</th></tr>
+      <tr><td>Vanilla</td><td>2–5</td><td>2 GB</td><td>3 GB</td><td>NVMe</td></tr>
+      <tr><td>Paper + Plugins</td><td>10–20</td><td>4 GB</td><td>6 GB</td><td>NVMe</td></tr>
+      <tr><td>Modded</td><td>5–10</td><td>6 GB</td><td>8 GB</td><td>NVMe</td></tr>
+      <tr><td>Large Modpacks</td><td>5–15</td><td>8 GB</td><td>12 GB</td><td>NVMe</td></tr>
+    </table>
+    <p>For a typical Paper server, pay close attention to single-core CPU performance. The main game tick has work that must be completed in sequence, so a high clock speed and strong per-core performance can matter more than a large advertised core count. Extra cores are still useful for the operating system, networking, plugins that perform asynchronous work, backups, and other services, but eight slow shared vCPUs do not automatically outperform a smaller allocation with faster, consistently available CPU time. Ask a provider whether its plan uses shared, burstable, or dedicated vCPUs, and treat “dedicated” as a plan feature to verify rather than a label to assume.</p>
+    <p>Choose NVMe SSD storage for the world, region files, and server files whenever the budget allows. Chunk generation and loading involve many reads and writes; a busy HDD can add latency when players explore new terrain or when the server saves region data. SATA SSD storage is generally preferable to a mechanical disk, while NVMe offers higher throughput and strong random-I/O performance on suitable hardware. Storage speed is not a substitute for CPU or RAM, but a fast drive helps avoid storage becoming the weak link. For bandwidth planning, a rough working allowance is 50–150 KB/s per active player in each direction under ordinary play; plugins, voice chat, map rendering, frequent chunk movement, and backups can change that figure. Check the host's transfer allowance and network limits rather than assuming an unlimited port means unlimited monthly traffic.</p>
   </section>
 
   <div class="ad-wide" data-ad="infeed" style="margin-left:0;margin-right:0"></div>
-  <section id="install">
-    <h2>Install on your phone</h2>
-    <p>Add Minecraft Web to your Home Screen and it opens full-screen like an app — no browser bars, more room to play.</p>
-    <div data-install-steps><p><b>iPhone/iPad (Safari):</b> tap Share, then <em>Add to Home Screen</em>, then open it from your Home Screen. <b>Android (Chrome):</b> ⋮ menu → <em>Install app</em>.</p></div>
+
+  <section id="hosting">
+    <h2>VPS vs dedicated game hosting vs home hosting</h2>
+    <p>Shared game hosting is usually the simplest way to start. The provider supplies a control panel, a server template, and routine infrastructure management; you select a plan and upload or configure the world. That convenience can be worth the price when you do not want to administer Linux. The limitation is that the provider controls the underlying environment. CPU time may be shared with other customers, available Java options may be restricted, and unusual plugins or custom services may not fit the panel. Compare the actual CPU allocation, RAM limit, storage type, backup policy, DDoS mitigation, and rules for moving your world before choosing a plan. A low monthly price is not useful if the server regularly competes for CPU time during busy periods.</p>
+    <p>A home server gives you physical control and can reuse hardware you already own, but it also makes you responsible for power, cooling, router configuration, operating-system updates, and a stable internet connection. Residential upload capacity, changing public IP addresses, carrier-grade NAT, and the lack of upstream DDoS protection can make public hosting difficult. A bare-metal dedicated server provides the most direct hardware control and can make sense for a large, consistently busy community, but it usually costs more and requires more administration. For a growing community that needs root access without managing a physical machine, a <strong>KVM VPS with a clearly specified dedicated-vCPU allocation, adequate RAM, NVMe storage, and network-level DDoS protection</strong> is often the practical middle ground. It gives you control over Java, Paper, firewall rules, backups, and plugins while leaving the physical host and network infrastructure to the provider.</p>
   </section>
 
-  <section>
-    <h2>Play anywhere</h2>
-    <p>Minecraft Web works on desktop and laptop browsers with keyboard and mouse, and on phones and tablets with touch controls. Nothing to download or install: your worlds are saved in your browser on your device. On iPhone you can also use <em>Share → Add to Home Screen</em> to play it like an app.</p>
-  </section>
-
-  <section>
-    <h2>Controls</h2>
-    <ul>
-      <li><strong>Desktop:</strong> WASD to move, mouse to look, left click to mine or attack, right click to use or place, E for inventory, T or / for chat and commands.</li>
-      <li><strong>Touch:</strong> left stick to move, drag to look, tap to use or place, hold to mine or attack, hotbar at the bottom.</li>
-    </ul>
-  </section>
-
-  <section>
-    <h2>About Minecraft Web</h2>
-    <p>Minecraft Web is an independent fan project: a browser game, and a separate set of original notes for people who run a real Java server. The game is a block-building experiment with procedural terrain, survival and creative play, inventory, mobs, weather, touch controls, and saves that stay in your browser. It is not the official Minecraft launcher, and it is not affiliated with Mojang Studios or Microsoft.</p>
-    <p>If you are here to leave a PC under a desk and keep a world online, start with the <a href="/guides/paper-minecraft-server-2026.html">24/7 Paper server guide</a>. It covers VPS size, JVM flags, and what shared game hosting does not tell you. The <a href="/about.html">about page</a> explains who writes the guides and how corrections work.</p>
-  </section>
-
-  <section>
-    <h2>Game modes and systems</h2>
-    <ul>
-      <li><strong>Survival:</strong> gather resources, craft tools, manage health and hunger, explore structures and fight hostile mobs.</li>
-      <li><strong>Creative:</strong> build freely with access to blocks and building tools without the normal survival resource loop.</li>
-      <li><strong>World generation:</strong> terrain is generated from multiple biome types with structures and different dimensions.</li>
-      <li><strong>Crafting and inventory:</strong> collect items, craft equipment, smelt materials and manage the Java inventory and hotbar.</li>
-      <li><strong>Exploration:</strong> oceans, forests, deserts, snowy areas, swamps, villages and underground areas provide different environments to explore.</li>
-    </ul>
-  </section>
-
-  <section>
-    <h2>Saving and privacy</h2>
-    <p>Worlds and game settings are stored locally in the browser on the device where you play. Clearing the site's browser data can remove those local saves. The project does not require an account just to start a world.</p>
-    <p>See the <a href="/privacy.html">privacy policy</a> for information about hosting, advertising technologies and optional purchases.</p>
-  </section>
-
-  <section>
-    <h2>Browser and mobile support</h2>
-    <p>The project is designed for modern desktop and mobile browsers. Desktop play uses keyboard and mouse controls, while phones and tablets provide an on-screen movement pad and touch actions. On smaller screens the interface changes layout so the game can remain usable in portrait or landscape orientation.</p>
-    <p>Because the game renders a 3D world in the browser, graphics performance and battery use vary substantially between devices. Closing other demanding tabs can improve performance on lower-powered phones and laptops.</p>
-  </section>
-
-  <section>
-    <h2>Development notes</h2>
-    <p>Minecraft Web is built as a custom JavaScript and WebGL/Three.js browser runtime. The project is developed in public source control and released through GitHub Pages. The source repository contains the runtime, assets, gameplay systems, responsive UI and diagnostic tools used during development.</p>
-    <p>Controls and systems for the browser game are in the <a href="/guide.html">Minecraft Web guide</a>. Server owners should use the <a href="/guides/">server guide library</a> instead of this page: Paper on Ubuntu, RAM, and hosting.</p>
-  </section>
-
-  <section>
-    <h2>Frequently asked questions</h2>
-    <h3>Do I need to download anything?</h3>
-    <p>No launcher or native installation is required. Open the game in a supported browser and let its assets load.</p>
-    <h3>Where are my worlds saved?</h3>
-    <p>World data is saved in your browser's local storage on the device you use to play.</p>
-    <h3>Is this an official Minecraft website?</h3>
-    <p>No. Minecraft Web is an independent fan project and is not affiliated with, endorsed by or associated with Mojang Studios or Microsoft. Minecraft is a trademark of Mojang Studios.</p>
-    <h3>Where are the server setup guides?</h3>
-    <p>The long Paper install, the RAM notes, and the hosting comparison are in the <a href="/guides/">server guides</a>. They are written for people 16 and older who are paying for a VPS. They are not instructions for the browser game.</p>
-  </section>
+  <!-- PLACEHOLDER FOR PART 2 -->
   </div>
   <footer><p><a href="/guides/">Server guides</a> · <a href="/guide.html">Game guide</a> · <a href="/about.html">About</a> · <a href="/editorial-policy.html">Editorial policy</a> · <a href="/privacy.html">Privacy</a> · <a href="/terms.html">Terms</a> · <a href="/contact.html">Contact</a> · <a href="https://github.com/matthewcodergamer/MinecraftWeb">Source on GitHub</a></p><p>Minecraft Web is an unofficial fan project. It is not affiliated with, endorsed by or associated with Mojang Studios or Microsoft. Minecraft is a trademark of Mojang Studios. Server guides name hosting companies for identification only. They are not affiliate links.</p></footer>
 </main>
