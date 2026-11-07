@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://matthewcodergamer.github.io/sitemap.xml
