@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How to Set Up a 24/7 Paper Minecraft Server (2026): VPS Sizing, JVM Tuning, and Hosting Comparison</title>
+<meta name="description" content="A practical Paper server install for Ubuntu: RAM and CPU sizing, Aikar’s flags, systemd, NVMe, and a straight comparison of VPS, game hosts, and Realms.">
+<link rel="canonical" href="https://matthewcodergamer.github.io/guides/paper-minecraft-server-2026.html">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,650&family=Public+Sans:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="/doc.css">
+<link rel="icon" type="image/png" sizes="32x32" href="/MinecraftWeb/assets/icon/icon-32.png">
+<meta name="google-adsense-account" content="ca-pub-5025566183652379">
+<link rel="preconnect" href="https://pagead2.googlesyndication.com" crossorigin>
+<link rel="preconnect" href="https://googleads.g.doubleclick.net" crossorigin>
+<link rel="preconnect" href="https://tpc.googlesyndication.com" crossorigin>
+<meta name="theme-color" content="#121410">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5025566183652379" crossorigin="anonymous"></script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "How to Set Up a 24/7 Paper Minecraft Server (2026): VPS Sizing, JVM Tuning, and Hosting Comparison for Stable Performance",
+  "dateModified": "2026-11-07",
+  "datePublished": "2026-11-07",
+  "author": {"@type": "Person", "name": "Matthew Coder", "url": "https://matthewcodergamer.github.io/about.html"},
+  "publisher": {"@type": "Organization", "name": "Minecraft Web", "url": "https://matthewcodergamer.github.io/"},
+  "mainEntityOfPage": "https://matthewcodergamer.github.io/guides/paper-minecraft-server-2026.html",
+  "description": "VPS sizing, JVM flags, and a hosting comparison for a Paper server that stays online."
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {"@type": "Question", "name": "How much RAM for 20 players on Paper?", "acceptedAnswer": {"@type": "Answer", "text": "Plan on a machine with 6 to 8 GB of RAM and a heap around 4.5 to 6.5 GB, with simulation distance near 5 and chunks pre-generated. Cap mob farms if tick time climbs."}},
+    {"@type": "Question", "name": "Can I run a Paper server on a 4 GB VPS?", "acceptedAnswer": {"@type": "Answer", "text": "Yes for about 10 players with light plugins, NVMe, and a 2.5 to 3 GB heap. It is the wrong machine for a large modpack or a high view distance."}},
+    {"@type": "Question", "name": "Do I need a dedicated IP?", "acceptedAnswer": {"@type": "Answer", "text": "A KVM VPS already includes an address players can reach. An extra dedicated-IP add-on is only useful behind a shared game host that separates customers by port."}},
+    {"@type": "Question", "name": "Is a VPS better than Realms?", "acceptedAnswer": {"@type": "Answer", "text": "A VPS is better when you need plugins, more than a small friend group, or control of flags and backups. Realms is better when you want Mojang to host a plugin-free world."}}
+  ]
+}
+</script>
+
+
+<script src="/site-ads.js" defer></script>
+<script src="/ad-clicks.js" defer></script>
+
+</head>
+<body>
+<div class="wrap">
+<nav class="crumbs"><a href="/">Minecraft Web</a> · <a href="/guides/">Server guides</a></nav>
+<h1>How to Set Up a 24/7 Paper Minecraft Server (2026)</h1>
+<div class="adslot" data-ad="page"></div>
+<p class="meta">Last updated: November 2026 · About 18 minutes to read · For server owners 16 and older</p>
+<p class="lead">A home PC under a desk will run a world for friends until the first thunderstorm of redstone farms, a power blink, or a flood of traffic you never asked for. This is the install I use when that setup has to become a server that stays online: Paper on a KVM VPS, a heap that leaves the operating system room to breathe, and flags taken from the Paper project rather than a forum paste from 2019.</p>
+
+<aside class="bio">
+  <p><strong>Written by Matthew Coder</strong>, editor of Minecraft Web. I wrote this for people moving a laggy home-hosted world onto a VPS they actually control. The commands are the Ubuntu 22.04 path with Java 21 (Temurin or OpenJDK) and Paper 1.21 or newer. The JVM block is <a href="https://docs.papermc.io/paper/aikars-flags/">Aikar’s flags as published by PaperMC</a>, not a private fork. I revise this page when Paper or Java changes the recommended set. Minecraft Web is an independent fan project and is not affiliated with Mojang Studios or Microsoft.</p>
+</aside>
+
+<nav class="toc" aria-label="Table of contents">
+  <strong>On this page</strong>
+  <ol>
+    <li><a href="#why-paper">Why Paper, and not Vanilla or Realms</a></li>
+    <li><a href="#hardware">RAM, CPU, disk, and bandwidth</a></li>
+    <li><a href="#where">VPS, game panel, or the PC at home</a></li>
+    <li><a href="#install">Install Paper on Ubuntu</a></li>
+    <li><a href="#flags">The JVM flags, and the two rules that matter</a></li>
+    <li><a href="#hosts">Who should buy which host</a></li>
+    <li><a href="#uptime">A 24/7 checklist</a></li>
+    <li><a href="#cost">What a month actually costs</a></li>
+    <li><a href="#mistakes">Common mistakes</a></li>
+    <li><a href="#faq">FAQ</a></li>
+  </ol>
+</nav>
+
+<h2 id="why-paper">Why Paper, and not Vanilla or Realms</h2>
+<p>Paper is a drop-in replacement for the official server jar. You still run a Java world. Players still join with the matching Java version. What changes is the server tick. Paper carries years of patches to hoppers, redstone, mob spawning, and the way chunks stay awake. On a survival world with farms, that work is often on the order of 30 to 50 percent less CPU than the same world on Vanilla. The number moves with your farms, your view distance, and your plugins. Use it as a planning figure, not a coupon.</p>
+<p>Vanilla is fine for two people who never build an iron farm. It is a poor default for a community that will be online while you sleep. The main thread still has to finish every tick in 50 milliseconds. Vanilla spends more of those milliseconds on work Paper has already shortened.</p>
+<p>Realms is the opposite trade. Mojang hosts it, backups exist, and you do not open a port on your router. Java Realms is a small friend list, not a community: you do not install plugins, you do not pick the hardware, and you cannot raise the player cap into the twenties with a voice chat plugin and a land-claim mod. If the server is a weekend world for a household, Realms is the least work. If you want permissions, claims, a discord link plugin, or more than a handful of regulars, you have already outgrown it.</p>
+<p>Home hosting fails in three dull ways. Your IP is your home IP, so a traffic flood arrives at the same connection your family uses. A laptop that sleeps is not a 24/7 server, and a desktop that stays awake is an electricity bill plus a disk that will fill with crash logs. Port forwarding works until the router reboots and the lease changes. None of that is dramatic. It is why the world is “up” only when you are at the machine.</p>
+<p>Spigot sits between Vanilla and Paper. It runs Bukkit plugins, which is what most communities need, but Paper is the build those plugins are tested on in 2026. Start on Paper unless a specific plugin still demands a Spigot jar. Fabric and Forge are a different product: they are mod loaders, not a faster Vanilla. Do not size a modpack with Paper numbers.</p>
+
+<h2 id="hardware">RAM, CPU, disk, and bandwidth</h2>
+<p>Minecraft Java does not scale the way a web server does. The world tick runs on one thread. Extra cores help the garbage collector, the operating system, and a backup job. They do not make the main loop twice as fast. When you compare VPS plans, read the single-core clock, not the badge that says “8 vCPU.” A modern 3 GHz core with the heap sized correctly will beat an older 8-core plan whose fastest core is sitting under 2.4 GHz and sharing a noisy neighbor.</p>
+<p>RAM is the number people buy first, and it is the number they overbuy. The heap has to hold loaded chunks, entities, and plugin data. It does not have to hold the entire world. A world on disk can be 8 GB while the live set is 3 GB, if view distance is sane and you pre-generated the map so new players are not generating terrain during peak hour.</p>
+
+<div class="tablewrap">
+<table>
+  <thead>
+    <tr><th>Server</th><th>Players</th><th>Minimum RAM</th><th>Comfortable RAM</th><th>Disk</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Vanilla, no farms</td><td>2–5</td><td>2 GB</td><td>3 GB</td><td>NVMe</td></tr>
+    <tr><td>Paper, light plugins</td><td>10–20</td><td>4 GB</td><td>6 GB</td><td>NVMe</td></tr>
+    <tr><td>Paper, busy survival, claims, discord, a few farms</td><td>20–40</td><td>6 GB</td><td>8 GB</td><td>NVMe</td></tr>
+    <tr><td>Forge or Fabric, light mod set</td><td>5–10</td><td>6 GB</td><td>8 GB</td><td>NVMe</td></tr>
+    <tr><td>Large modpack (FTB, ATM, and the like)</td><td>5–15</td><td>8 GB</td><td>12 GB</td><td>NVMe</td></tr>
+  </tbody>
+</table>
+</div>
+<p>Those figures are the machine total, not the <code>-Xmx</code> value. Leave 1 to 1.5 GB for the operating system and for memory Java uses outside the heap. On an 8 GB VPS, set both <code>-Xms</code> and <code>-Xmx</code> around 6.5 GB. On a 4 GB VPS, 2.5 to 3 GB of heap is the honest ceiling. If you hand Java the entire VPS, the kernel’s out-of-memory killer will stop the process at the worst moment, usually while a new chunk is saving.</p>
+<p>Storage is not optional polish. Chunk I/O happens when players move, when the world saves, and when someone flies with an elytra. A SATA SSD is acceptable for a quiet world. A spinning disk is not: players see multi-second “loading terrain” stalls, often 3 to 5 seconds, because the main thread is waiting on the disk. Buy NVMe. Twenty gigabytes is enough for a new survival world plus a few backups on the same disk; keep older backups somewhere else so a full disk cannot stop the server from saving.</p>
+<p>Bandwidth is smaller than people fear. A normal Java player is on the order of 50 to 150 KB/s while moving through already-generated terrain. Ten people online at once is roughly 1 to 1.5 MB/s if they are all traveling. A heavy month of that, all day, lands around 3 to 4 TB. Most VPS plans include that. The spike that hurts is not ten friends. It is a map download for a new player, or a badly configured voice chat, or someone generating terrain at high speed. Pre-generate, and the bandwidth graph stays boring.</p>
+<p>If you want the sizing logic without the rest of the install, the short version is <a href="/guides/paper-ram-view-distance.html">how much RAM a Paper server actually needs</a>.</p>
+
+<h2 id="where">VPS, game panel, or the PC at home</h2>
+<p>There are three places this world can live. They are not the same product with different logos.</p>
+<div class="tablewrap">
+<table>
+  <thead>
+    <tr><th></th><th>Home PC</th><th>Shared game host</th><th>KVM VPS</th><th>Bare metal</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Typical monthly cost</td><td>Power only, often $10–25 hidden</td><td>About $10–25</td><td>About $5–40</td><td>$40 and up</td></tr>
+    <tr><td>Root access</td><td>Yes, it is your machine</td><td>No. You get a panel</td><td>Yes</td><td>Yes</td></tr>
+    <tr><td>DDoS protection</td><td>None, unless you add a proxy</td><td>Usually included</td><td>Depends on the host</td><td>Usually included on the big hosts</td></tr>
+    <tr><td>Noisy neighbor</td><td>No</td><td>Real risk. Your tick shares a node</td><td>Low on dedicated vCPU, real on cheap oversold plans</td><td>No</td></tr>
+    <tr><td>Skill you need</td><td>Router, firewall, and being awake</td><td>A control panel</td><td>Linux, systemd, updates</td><td>The same as a VPS, with more hardware</td></tr>
+  </tbody>
+</table>
+</div>
+<p>A shared game host is the right purchase when you want plugins but you do not want a shell. You pay for someone else to restart the jar and to absorb junk traffic. The limit shows up as lag you cannot explain: another customer’s modpack on the same CPU, a disk that is not yours, a panel that will not let you set <code>-Xms</code> equal to <code>-Xmx</code>. If the host will not tell you the processor or whether the disk is NVMe, assume the cheap plan is oversold.</p>
+<p>A KVM VPS with a dedicated vCPU is the point where a growing server should sit. You get a real Linux system, you choose the Java version, you read your own timings, and the monthly price is still in the range of a game-host plan once you pass 4 GB. Virtualization still exists — a “vCPU” is not a pin on a motherboard — but KVM does not share the kernel with the neighbor the way a container on a sloppy host can. Read the plan. “Dedicated vCPU” and “shared vCPU” are different products that marketing sometimes blurs.</p>
+<p>Bare metal is for a community that has already filled a solid VPS: dozens of players, a heavy modpack, or a minigame network that cannot tolerate a neighbor. It is wasted money at 15 players.</p>
+<p>The longer comparison, including Realms, is <a href="/guides/paper-vs-realms-vs-vps.html">Paper versus Realms versus a VPS</a>.</p>
+
+<h2 id="install">Install Paper on Ubuntu</h2>
+<p>These steps assume a fresh Ubuntu 22.04 or 24.04 VPS and a user who can use <code>sudo</code>. Do this over SSH. Do not run the server as root.</p>
+<h3>1. Install Java 21</h3>
+<p>Paper 1.21 and newer expects Java 21. Temurin from Adoptium is the build I prefer because the version does not drift with a surprise distro update. OpenJDK 21 from Ubuntu’s own archive is also fine.</p>
+<pre><code>sudo apt update
+sudo apt install -y wget apt-transport-https gpg
+wget -qO - https://packages.adoptium.net/artifactory/api/gpg/key/public | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/adoptium.gpg > /dev/null
+echo "deb https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print $2}' /etc/os-release) main" | sudo tee /etc/apt/sources.list.d/adoptium.list
+sudo apt update
+sudo apt install -y temurin-21-jdk
+java -version</code></pre>
+<p>You want a line that says 21, not 17 and not 25. If <code>java -version</code> still shows an older default, point the server unit at <code>/usr/lib/jvm/</code> and the Temurin <code>bin/java</code> directly so a later package cannot silently change it.</p>
+<h3>2. Create a service account</h3>
+<pre><code>sudo useradd --system --create-home --home-dir /opt/minecraft --shell /usr/sbin/nologin minecraft
+sudo mkdir -p /opt/minecraft
+sudo chown minecraft:minecraft /opt/minecraft</code></pre>
+<p>The server files live in <code>/opt/minecraft</code>. The process cannot log in. You will edit configs with <code>sudo -u minecraft</code> or by owning the files only while you edit them and giving them back.</p>
+<h3>3. Download Paper from Paper, not from a mirror</h3>
+<p>Open <a href="https://papermc.io/downloads/paper">papermc.io/downloads/paper</a> and take the build for the game version your players run. The site hands you a URL on <code>fill-data.papermc.io</code>. Put that URL in the command below. I am not embedding a build number here, because it goes stale the week after this page is updated.</p>
+<pre><code>sudo -u minecraft -s
+cd /opt/minecraft
+wget -O paper.jar "https://fill-data.papermc.io/v1/objects/PASTE_THE_OFFICIAL_URL_PATH"
+</code></pre>
+<p>If <code>wget</code> saved an HTML error page, the jar is not a jar. Check the file size before you continue. A real Paper jar is tens of megabytes.</p>
+<h3>4. Accept the EULA on purpose</h3>
+<p>Start the jar once so it writes <code>eula.txt</code>, then stop it. Read the EULA. If you agree, set the flag. Do not skip the read just because every guide, including this one, shows the next line.</p>
+<pre><code>java -jar paper.jar --nogui
+# It will exit. Then:
+printf 'eula=true\n' > eula.txt</code></pre>
+<h3>5. A start script you can also call by hand</h3>
+<p>systemd will be the thing that actually stays up. A script is still useful when you want to test a flag change in the foreground and watch the log. Replace <code>6G</code> with the heap from the sizing section, not with the full size of the VPS.</p>
+<pre><code>cat > /opt/minecraft/start.sh << 'EOF'
+#!/bin/bash
+cd /opt/minecraft
+exec java -Xms6G -Xmx6G \
+  -XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 \
+  -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch \
+  -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 -XX:G1HeapRegionSize=8M \
+  -XX:G1ReservePercent=20 -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=4 \
+  -XX:InitiatingHeapOccupancyPercent=15 -XX:G1MixedGCLiveThresholdPercent=90 \
+  -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 \
+  -XX:+PerfDisableSharedMem -XX:MaxTenuringThreshold=1 \
+  -Dusing.aikars.flags=https://mcflags.emc.gs -Daikars.new.flags=true \
+  -jar paper.jar --nogui
+EOF
+chmod +x /opt/minecraft/start.sh
+chown minecraft:minecraft /opt/minecraft/start.sh</code></pre>
+<h3>6. systemd, so a reboot is not an outage</h3>
+<p>Write <code>/etc/systemd/system/paper.service</code>:</p>
+<pre><code>[Unit]
+Description=Paper Minecraft Server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=minecraft
+WorkingDirectory=/opt/minecraft
+ExecStart=/opt/minecraft/start.sh
+Restart=on-failure
+RestartSec=15
+SuccessExitStatus=0 143
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target</code></pre>
+<pre><code>sudo systemctl daemon-reload
+sudo systemctl enable --now paper
+sudo journalctl -u paper -f</code></pre>
+<p><code>Restart=on-failure</code> brings the process back after a crash. It does not restart after a clean <code>stop</code>, which is what you want when you are doing maintenance. <code>143</code> is the status Java returns on a normal SIGTERM, so a deliberate stop is not treated as a crash loop. Watch the first boot. Paper spends the first start rewriting configuration files. The second start is the one that should reach “Done”.</p>
+<h3>7. The port, and a word about floods</h3>
+<p>Java’s game port is TCP 25565. Open UDP as well only if you turn on query or a plugin that actually uses it. On Ubuntu’s uncomplicated firewall:</p>
+<pre><code>sudo ufw allow OpenSSH
+sudo ufw allow 25565/tcp
+sudo ufw enable
+sudo ufw status</code></pre>
+<p>Allow SSH before you enable the firewall. I have locked myself out by doing those lines in the wrong order, and the recovery is a hosting console, not a clever flag.</p>
+<p>A VPS public address will be scanned. That is normal. A volumetric flood is not something <code>ufw</code> can absorb, because the packets have already arrived at the host. Use the provider’s network protection if the plan includes it. If it does not, put a TCP proxy in front — TCPShield’s free tier, or a Spectrum-style proxy if you already pay for one — and firewall the VPS so only the proxy’s addresses can reach 25565. Do not publish the raw VPS address in your Discord after you have done that. The proxy is useless if the origin IP is in last month’s screenshot.</p>
+
+<h2 id="flags">The JVM flags, and the two rules that matter</h2>
+<p>The block in <code>start.sh</code> is the set Paper documents as Aikar’s flags. People argue about individual knobs. The two rules below are the ones that show up in real outages. Get them right before you touch anything else.</p>
+<p><strong>Do not give Java the whole machine.</strong> <code>-Xmx</code> is the heap. It is not “RAM used by Minecraft.” The kernel, page cache, Java threads, and native libraries sit outside that number. If the heap plus that overhead exceeds the VPS, the out-of-memory killer sends SIGKILL. There is no stack trace worth reading, because the process did not get to write one. Leave 1 to 1.5 GB. On 8 GB of VPS RAM, 6.5 GB of heap is the top I will set. On 4 GB, stop at 3 GB and lower the view distance instead of pretending the box is bigger.</p>
+<p><strong>Set <code>-Xms</code> equal to <code>-Xmx</code>.</strong> A dedicated game server does not benefit from a heap that grows and shrinks. Resizing is a pause, and it happens when the server is already busy, which is when you notice it. Fixing the heap size also makes <code>AlwaysPreTouch</code> do its job: the process asks for all of that memory at startup. If you overshot, the server fails immediately, in front of you, instead of at prime time.</p>
+<p>The collector is G1. <code>-XX:+UseG1GC</code> and <code>-XX:MaxGCPauseMillis=200</code> tell the JVM to prefer short pauses over maximum throughput. A Minecraft tick is 50 ms. A 200 ms pause is already four missed ticks, which players feel as a hitch, so the rest of Aikar’s flags push G1 to start collecting earlier (<code>InitiatingHeapOccupancyPercent=15</code>) and to keep the young generation large enough that short-lived allocation dies there. That pattern matches a game server: lots of garbage every tick, a working set you want to stay put. You do not need to re-tune this for a 15-player survival server. You need to stop adding plugins that do work on the main thread.</p>
+<p><code>G1HeapRegionSize=8M</code> matches heaps from about 4 GB through the low teens. If you ever run a heap past 12 GB for a large modpack, move that one value to 16M and leave the rest. Do not mix in CMS flags, <code>UseConcMarkSweepGC</code>, or a startup line copied from a 1.8 tutorial. Those collectors are gone, and Java 21 will refuse the line or ignore the part that mattered.</p>
+<p>I am not going to publish a single TPS figure from one afternoon and call it a benchmark. Tick time moves with the world. What I will say is narrower: on a 4 GB KVM plan, with a 3 GB heap, view-distance 7, simulation-distance 5, chunks pre-generated, and a short plugin list, a 10 to 15 player survival server is a reasonable target. If <code>/tps</code> falls, look at entities and farms before you look at a bigger plan. Flags do not fix a 400-villager trading hall.</p>
+
+<h2 id="hosts">Who should buy which host</h2>
+<p>Prices below are typical published ranges in late 2026, in US dollars, for the smallest plan that can hold the workload in the first column. They move. Open the provider’s page before you pay. This guide does not use affiliate links, and a commission is not why a row is here.</p>
+<div class="tablewrap">
+<table>
+  <thead>
+    <tr><th>Situation</th><th>Look at</th><th>Price band</th><th>What you are buying</th><th>Root</th><th>Watch for</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Friends, plugins, no shell</td><td>Shared game hosts in the Shockbyte, PebbleHost, or Apex style</td><td>$10–25</td><td>A panel, a jar, and usually some DDoS filtering</td><td>No</td><td>Noisy neighbors, unknown disks, flags you cannot set</td></tr>
+    <tr><td>You want root and a predictable core</td><td>KVM VPS: Hetzner, Netcup, OVH, Hostinger VPS, and similar</td><td>$5–40</td><td>Dedicated or clearly labeled vCPU, NVMe, your own systemd</td><td>Yes</td><td>The cheapest 4 GB plan is often a shared core. Read that line twice</td></tr>
+    <tr><td>A quiet 10-player Paper box</td><td>A 4 GB KVM plan with NVMe</td><td>Often under $15</td><td>Enough RAM if you do not install a modpack</td><td>Yes</td><td>DDoS on bargain brands is sometimes “none”</td></tr>
+    <tr><td>20–40 players, farms, a few plugins</td><td>8 GB KVM, high clock, NVMe</td><td>$15–40</td><td>Headroom so the heap is 6–6.5 GB</td><td>Yes</td><td>Unlimited bandwidth that is not unlimited at 1 Gbps</td></tr>
+    <tr><td>50+ players or a large modpack</td><td>Dedicated machines from OVHcloud, Hetzner, or a specialist</td><td>$40–120+</td><td>A core that is actually yours, and disks you can see</td><td>Yes</td><td>Paying this for 12 friends</td></tr>
+  </tbody>
+</table>
+</div>
+<p><strong>Buy the panel</strong> if you will not SSH, if the community is under about 20 people, and if the host will say “NVMe” and “dedicated core” in the plan details rather than only in the hero image. <strong>Buy the KVM VPS</strong> if you want Paper, flags, and backups you can script, which is the case this guide is written for. <strong>Buy the dedicated machine</strong> when a profiler, not a feeling, says the single core is saturated with the view distance already cut. <strong>Stay on Realms</strong> if you have no plugins and no interest in being the person who updates Java.</p>
+
+<h2 id="uptime">A 24/7 checklist</h2>
+<p>The jar being installed is not the same as the server staying smooth. Do these before you post the IP.</p>
+<ul class="clean">
+  <li><strong>Pre-generate the world.</strong> Install the Chunky plugin, set a radius that covers where people will actually walk, and let it finish while nobody is online. Terrain generation on the main thread is the most common “it was fine in testing” outage.</li>
+  <li><strong>Cut distances.</strong> In <code>server.properties</code>, start at <code>view-distance=7</code> and <code>simulation-distance=5</code>. Raise view distance only after <code>/tps</code> stays at 20 with your real player count. A view distance of 12 feels generous and costs you the whole CPU budget.</li>
+  <li><strong>Restart on a schedule.</strong> A daily restart clears leaks in plugins you will not find this month. With systemd, a cron entry is enough: <code>15 5 * * * systemctl restart paper</code>. Pick an hour your players are asleep, and say so in the MOTD. Do not also run the jar inside <code>screen</code>. Two supervisors will fight, and you will not know which one lost.</li>
+  <li><strong>Turn on Paper’s anti-xray.</strong> In current Paper builds the switch lives in <code>config/paper-world-defaults.yml</code> under the anti-xray section. Engine mode 2 hides ores that are not exposed to air. It costs a little CPU and saves you a month of argument about x-ray clients.</li>
+  <li><strong>Cap entities.</strong> Lower <code>spawn-limits</code> in <code>bukkit.yml</code> if farms are the point of the server but the tick is not. Paper can also use per-player mob spawns so one player’s grinder does not populate the whole dimension. A thousand mobs in one chunk will lose to any hosting plan you can afford.</li>
+  <li><strong>Watch the tick, not the host’s pretty graph.</strong> <code>/tps</code> and <code>/mspt</code> tell you if the game thread is healthy. A VPS dashboard that says CPU is at 40 percent can still be a server missing ticks, because that 40 percent is one core pegged and the other cores idle. Spark, the profiler plugin, is the next step when mspt climbs and you do not know which plugin did it.</li>
+  <li><strong>Notice when it is down.</strong> Point UptimeRobot, or any similar free monitor, at TCP port 25565, or at a tiny status page if you put the game port behind a proxy. Check it from outside your own network. Alert yourself. A server you only notice is down when a player complains is not a 24/7 server.</li>
+  <li><strong>Backups that are not on the same disk.</strong> A nightly <code>tar</code> of the world, copied off the VPS, beats a snapshot you never tested. Restoring once, on purpose, is part of the setup. A backup you have not restored is a rumor.</li>
+</ul>
+
+<h2 id="cost">What a month actually costs</h2>
+<div class="tablewrap">
+<table>
+  <thead>
+    <tr><th>Line</th><th>Typical month</th><th>Notes</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>KVM VPS</td><td>$5–40</td><td>4 GB at the bottom of that range, 8 GB with a faster core toward the top</td></tr>
+    <tr><td>Offsite backups</td><td>$2–5</td><td>Object storage or a second cheap disk. Do not count the host’s free snapshot as your only copy</td></tr>
+    <tr><td>Domain</td><td>About $1</td><td>Optional. $10–15 a year. An SRV record lets players type <code>play.example.com</code> without a port</td></tr>
+    <tr><td>DDoS proxy</td><td>$0–20</td><td>Use the host’s protection if it is real. Add a TCP proxy if the origin has none</td></tr>
+    <tr><td>Home PC, for comparison</td><td>$10–25 in power, plus the machine</td><td>100 watts all month is roughly 72 kWh. At common residential rates that is already a small VPS, before you price a disk failure or a flood aimed at your house</td></tr>
+  </tbody>
+</table>
+</div>
+<p>A serious small community lands around $15 to $30 all-in: an 8 GB KVM plan or a careful 4 GB plan, backups, and no proxy bill because the host filters. That is less than the time you will spend reopening a port on a home router after every firmware update. Pay for the core and the NVMe. Do not pay for a control panel theme.</p>
+
+<h2 id="mistakes">Common mistakes</h2>
+<ul class="clean">
+  <li><strong>Setting <code>-Xmx</code> to the full VPS size.</strong> The process dies later, under load, with no Java error. Leave 1 to 1.5 GB, and set <code>-Xms</code> to the same value as <code>-Xmx</code>.</li>
+  <li><strong>Putting the world on a spinning disk</strong> because the plan was a dollar cheaper. The lag looks like a network problem. It is the disk. NVMe is the requirement, not the upgrade.</li>
+  <li><strong>Running a large modpack on 2 GB</strong> because a Paper guide said 2 GB was enough for Vanilla. It was enough for Vanilla with five players and no farms. A modpack needs the 8 to 12 GB row, and it needs a modded server jar, not Paper.</li>
+  <li><strong>View distance 16 “so it looks like singleplayer.”</strong> Singleplayer is one player and a client that can hitch. Your main thread cannot hitch. Start at 6 to 8.</li>
+  <li><strong>Opening the server to the internet before Chunky finishes.</strong> The first evening is everyone exploring outward at once. That is the most expensive hour the CPU will have. Spend it before launch, while the server is empty.</li>
+  <li><strong>Running as root, or running inside <code>screen</code> and systemd at the same time.</strong> One account, one supervisor.</li>
+  <li><strong>Pasting flags from a 1.12 post</strong> that still mention CMS or PermGen. Java 21 will not do what that post remembers.</li>
+  <li><strong>Publishing the origin IP</strong> after you paid for a proxy. The proxy only helps if players connect to the proxy.</li>
+</ul>
+
+<h2 id="faq">FAQ</h2>
+<div class="faq">
+  <h3>How much RAM for 20 players on Paper?</h3>
+  <p>Plan on a machine with 6 to 8 GB of RAM, and a heap around 4.5 to 6.5 GB. Twenty players on a pre-generated survival world with a handful of plugins fit in 6 GB of heap if simulation distance stays near 5. Twenty players plus several large mob farms fit only if you cap spawns. RAM does not replace that cap.</p>
+  <h3>Can I run a Paper server on a 4 GB VPS?</h3>
+  <p>Yes, for roughly 10 players, light plugins, NVMe, and a 2.5 to 3 GB heap. It is the wrong box for a modpack, for a busy event, and for view distance above 8. If the plan’s vCPU is shared and the host will not name the processor, a 4 GB plan can still feel worse than a smaller dedicated core.</p>
+  <h3>Do I need a dedicated IP?</h3>
+  <p>You need an address players can reach. A KVM VPS already includes one. You do not need to buy an extra “dedicated IP” add-on unless you are behind a shared game host that puts many customers on one address and separates them by port. A domain plus an SRV record is how you hide that port. The IP itself can be the one that came with the VPS.</p>
+  <h3>Is a VPS better than Realms?</h3>
+  <p>For plugins, player counts past a small friend group, and any control over flags or backups, yes. For a household that wants Mojang to host the world and does not want a shell, Realms is better because you will actually keep it online. Better means “fits the job,” not “more expensive.”</p>
+  <h3>Which Java version?</h3>
+  <p>Java 21 for Paper 1.21 and newer. Do not run a newer major release just because a VPS image shipped it, unless Paper’s download page says that release is supported. The server is pickier than the client.</p>
+</div>
+
+<p class="note">Sources worth reading next to this page: the <a href="https://docs.papermc.io/paper/aikars-flags/">PaperMC note on Aikar’s flags</a>, the <a href="https://papermc.io/downloads/paper">Paper download page</a>, and <a href="https://adoptium.net/">Adoptium</a> for Temurin 21. If a command here disagrees with Paper’s current docs, believe Paper — the project moves, and this page is updated on that schedule rather than on a hunch.</p>
+
+<p>Related on this site: <a href="/guides/paper-ram-view-distance.html">RAM and view distance</a> · <a href="/guides/paper-vs-realms-vs-vps.html">Realms, a panel, or a VPS</a> · <a href="/guides/">All server guides</a> · <a href="/MinecraftWeb/">Play Minecraft Web in the browser</a></p>
+
+
+<footer class="site">
+  <p><a href="/">Minecraft Web</a> · <a href="/guides/">Server guides</a> · <a href="/about.html">About</a> · <a href="/editorial-policy.html">Editorial policy</a> · <a href="/privacy.html">Privacy</a> · <a href="/terms.html">Terms</a> · <a href="/contact.html">Contact</a></p>
+  <p>Minecraft Web is an unofficial fan project. It is not affiliated with, endorsed by, or associated with Mojang Studios or Microsoft. Minecraft is a trademark of Mojang Studios. Hosting names are for identification. This site does not use affiliate links in its server guides.</p>
+</footer>
+
+</div>
+</body>
+</html>

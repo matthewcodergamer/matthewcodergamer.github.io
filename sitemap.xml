@@ -1,7 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://matthewcodergamer.github.io/</loc></url>
-  <url><loc>https://matthewcodergamer.github.io/guide.html</loc></url>
-  <url><loc>https://matthewcodergamer.github.io/privacy.html</loc></url>
+  <url><loc>https://matthewcodergamer.github.io/</loc><lastmod>2026-11-07</lastmod></url>
+  <url><loc>https://matthewcodergamer.github.io/guide.html</loc><lastmod>2026-11-07</lastmod></url>
+  <url><loc>https://matthewcodergamer.github.io/privacy.html</loc><lastmod>2026-11-07</lastmod></url>
+  <url><loc>https://matthewcodergamer.github.io/terms.html</loc><lastmod>2026-11-07</lastmod></url>
+  <url><loc>https://matthewcodergamer.github.io/about.html</loc><lastmod>2026-11-07</lastmod></url>
+  <url><loc>https://matthewcodergamer.github.io/contact.html</loc><lastmod>2026-11-07</lastmod></url>
+  <url><loc>https://matthewcodergamer.github.io/editorial-policy.html</loc><lastmod>2026-11-07</lastmod></url>
+  <url><loc>https://matthewcodergamer.github.io/guides/</loc><lastmod>2026-11-07</lastmod></url>
+  <url><loc>https://matthewcodergamer.github.io/guides/paper-minecraft-server-2026.html</loc><lastmod>2026-11-07</lastmod></url>
+  <url><loc>https://matthewcodergamer.github.io/guides/paper-ram-view-distance.html</loc><lastmod>2026-11-07</lastmod></url>
+  <url><loc>https://matthewcodergamer.github.io/guides/paper-vs-realms-vs-vps.html</loc><lastmod>2026-11-07</lastmod></url>
   <url><loc>https://matthewcodergamer.github.io/MinecraftWeb/</loc></url>
 </urlset>

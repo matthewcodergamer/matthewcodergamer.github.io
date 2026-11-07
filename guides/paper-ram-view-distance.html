@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How Much RAM a Paper Minecraft Server Needs (2026)</title>
+<meta name="description" content="Heap size, view distance, and simulation distance for a Paper server, including what to do when the tick is late and RAM is not the reason.">
+<link rel="canonical" href="https://matthewcodergamer.github.io/guides/paper-ram-view-distance.html">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,650&family=Public+Sans:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="/doc.css">
+<link rel="icon" type="image/png" sizes="32x32" href="/MinecraftWeb/assets/icon/icon-32.png">
+<meta name="google-adsense-account" content="ca-pub-5025566183652379">
+<link rel="preconnect" href="https://pagead2.googlesyndication.com" crossorigin>
+<link rel="preconnect" href="https://googleads.g.doubleclick.net" crossorigin>
+<link rel="preconnect" href="https://tpc.googlesyndication.com" crossorigin>
+<meta name="theme-color" content="#121410">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5025566183652379" crossorigin="anonymous"></script>
+
+
+
+<script src="/site-ads.js" defer></script>
+<script src="/ad-clicks.js" defer></script>
+
+</head>
+<body>
+<div class="wrap">
+<nav class="crumbs"><a href="/">Minecraft Web</a> · <a href="/guides/">Server guides</a></nav>
+<h1>How much RAM a Paper server actually needs</h1>
+<div class="adslot" data-ad="page"></div>
+<p class="meta">Last updated: November 2026 · Companion to the <a href="/guides/paper-minecraft-server-2026.html">full Paper install guide</a></p>
+<p class="lead">People buy RAM because a panel slider says “recommended.” The live server does not care what the slider said. It cares how many chunks are ticking, how many entities are in them, and whether the disk can save those chunks before the next tick is due.</p>
+
+<h2>What the heap is actually holding</h2>
+<p>A Paper process keeps recently used chunks in memory, plus the entities in those chunks, plus whatever your plugins cache. The world folder on disk is not the heap. A 10 GB world can run in a 3 GB heap if only a few hundred chunks are loaded. The same world will not fit in 8 GB if forty players are scattered across an ungenerated map with view-distance 12, because each player loads a square of chunks and the main thread is also writing new terrain.</p>
+<p>That is why two servers with “20 slots” need different machines. Twenty friends who share a town and a highway use one region of the world. Twenty players who each fly in a different direction use twenty regions. Slot count is a permission. Loaded chunks are the cost.</p>
+
+<h2>A practical table</h2>
+<div class="tablewrap">
+<table>
+  <thead>
+    <tr><th>What you run</th><th>Machine RAM</th><th>Heap (<code>-Xms</code> and <code>-Xmx</code>)</th><th>View / simulation</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Vanilla, 2–5 players, no farms</td><td>3 GB</td><td>2 GB</td><td>8 / 6</td></tr>
+    <tr><td>Paper, about 10 players, a few plugins</td><td>4 GB</td><td>2.5–3 GB</td><td>7 / 5</td></tr>
+    <tr><td>Paper, 15–25 players, claims, chat, light farms</td><td>8 GB</td><td>6–6.5 GB</td><td>7 / 5</td></tr>
+    <tr><td>Paper, 30–40, several active farms</td><td>8–12 GB</td><td>6.5–8 GB</td><td>6 / 4, and cap mobs</td></tr>
+    <tr><td>Light Fabric or Forge pack, 5–10 players</td><td>8 GB</td><td>6–6.5 GB</td><td>Whatever the pack allows; start lower</td></tr>
+    <tr><td>Large kitchen-sink pack</td><td>12–16 GB</td><td>8–12 GB</td><td>The pack’s own recommendation, then cut it</td></tr>
+  </tbody>
+</table>
+</div>
+<p>Leave 1 to 1.5 GB of the machine outside the heap. The operating system and Java’s off-heap use that room. Setting <code>-Xmx</code> equal to the VPS size is the mistake that gets the process killed with no error log. Set <code>-Xms</code> to the same number as <code>-Xmx</code> so the heap does not resize while players are online.</p>
+
+<h2>View distance is a RAM setting and a CPU setting</h2>
+<p>View distance is the radius, in chunks, that stays loaded around each player. Simulation distance is the smaller radius that actually ticks. You can show a player 8 chunks and only simulate 4. That split is the cheapest performance win on Paper, and it lives in <code>server.properties</code>:</p>
+<pre><code>view-distance=7
+simulation-distance=5</code></pre>
+<p>Going from 6 to 10 does not add four chunks. It adds the area of a larger square. A jump of a few steps on the slider can more than double the chunks a traveling player keeps warm. If <code>/mspt</code> is high and the host graph says the disk is busy, you are generating or saving too much world. If mspt is high and the disk is idle, you are ticking too many entities inside an already loaded area. Those are different bills. RAM pays the first one only up to a point. The second one is solved by spawn limits, not by another 4 GB.</p>
+
+<h2>Pre-generation changes the RAM story</h2>
+<p>Chunk generation is the expensive part. Once Chunky, or a similar plugin, has written the area people will explore, joining the server becomes a read instead of a generation. Reads still want NVMe — a spinning disk turns “already generated” into a multi-second stall — but they do not need the heap to hold the whole map. Generate before you open the IP. Then size RAM for the players you expect in town at once, not for the first week of everyone walking to the world border.</p>
+
+<h2>How to tell you are short, and how to tell you are not</h2>
+<ul>
+  <li><code>/tps</code> near 20 and <code>/mspt</code> comfortably under 50 means the tick is fine. Do not buy RAM to fix a feeling.</li>
+  <li>The log says <code>Can't keep up</code> and Spark shows a plugin or a farm: that is CPU on the main thread. A bigger heap will not move that number.</li>
+  <li>The process disappears and <code>dmesg</code> mentions <code>oom-kill</code>: the heap was too close to the size of the VPS, or a plugin leaked native memory. Lower <code>-Xmx</code> before you upgrade.</li>
+  <li>Players hitch only while moving into new terrain, and the disk is saturated: you skipped pre-generation, or the disk is not NVMe.</li>
+</ul>
+<p>For the install itself — user account, systemd, the flag block, firewall — use the <a href="/guides/paper-minecraft-server-2026.html">24/7 Paper server guide</a>. For the choice between Realms, a panel, and a VPS, use the <a href="/guides/paper-vs-realms-vs-vps.html">hosting comparison</a>.</p>
+
+
+<footer class="site">
+  <p><a href="/">Minecraft Web</a> · <a href="/guides/">Server guides</a> · <a href="/about.html">About</a> · <a href="/editorial-policy.html">Editorial policy</a> · <a href="/privacy.html">Privacy</a> · <a href="/terms.html">Terms</a> · <a href="/contact.html">Contact</a></p>
+  <p>Minecraft Web is an unofficial fan project. It is not affiliated with, endorsed by, or associated with Mojang Studios or Microsoft. Minecraft is a trademark of Mojang Studios. Hosting names are for identification. This site does not use affiliate links in its server guides.</p>
+</footer>
+
+</div>
+</body>
+</html>

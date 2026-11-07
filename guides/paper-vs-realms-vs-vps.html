@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paper Server Hosting Compared: Realms, a Game Panel, or a VPS (2026)</title>
+<meta name="description" content="When to stay on Minecraft Realms, when a shared game host is enough, and when a KVM VPS is the server you can actually tune.">
+<link rel="canonical" href="https://matthewcodergamer.github.io/guides/paper-vs-realms-vs-vps.html">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,650&family=Public+Sans:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="/doc.css">
+<link rel="icon" type="image/png" sizes="32x32" href="/MinecraftWeb/assets/icon/icon-32.png">
+<meta name="google-adsense-account" content="ca-pub-5025566183652379">
+<link rel="preconnect" href="https://pagead2.googlesyndication.com" crossorigin>
+<link rel="preconnect" href="https://googleads.g.doubleclick.net" crossorigin>
+<link rel="preconnect" href="https://tpc.googlesyndication.com" crossorigin>
+<meta name="theme-color" content="#121410">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5025566183652379" crossorigin="anonymous"></script>
+
+
+
+<script src="/site-ads.js" defer></script>
+<script src="/ad-clicks.js" defer></script>
+
+</head>
+<body>
+<div class="wrap">
+<nav class="crumbs"><a href="/">Minecraft Web</a> · <a href="/guides/">Server guides</a></nav>
+<h1>Realms, a game panel, or a VPS</h1>
+<div class="adslot" data-ad="page"></div>
+<p class="meta">Last updated: November 2026 · Read this before you pay for a year of hosting. The install steps live in the <a href="/guides/paper-minecraft-server-2026.html">Paper server guide</a>.</p>
+<p class="lead">Realms, a shared game panel, and a VPS can all show a green “online” dot. They fail in different places. Pick the failure you are willing to own.</p>
+
+<h2>Realms</h2>
+<p>Java Realms is Mojang’s hosted world for a small group. You do not open a port, you do not patch Java, and you do not get plugins. There is no permissions plugin, no claims plugin, no Discord bridge, and no way to swap in Paper. Backups exist because the product is meant to be boring. That is a compliment. If the group is your household, Realms is the highest chance the world is still there in six months, because nothing depends on you remembering an SSH key.</p>
+<p>It stops being the right tool the day someone asks for a plugin or a twentieth regular. You cannot tune view distance below what the product allows in any serious way, and you cannot read a Spark profile. You also cannot outgrow it gradually. The migration is a full world download onto something else.</p>
+
+<h2>A shared game host</h2>
+<p>Companies in the style of Shockbyte, PebbleHost, and Apex sell a panel, a jar, and usually some protection against junk traffic. You upload plugins. You press start. You do not get root, so you do not install a different Java than the one they offer, and you may not be allowed to set <code>-Xms</code> equal to <code>-Xmx</code>. Monthly prices for a small Paper plan often land around $10 to $25.</p>
+<p>The risk that does not appear on the order page is the neighbor. Your tick shares a machine with other customers. A good host isolates that reasonably and puts you on NVMe. A cheap host packs nodes until the CPU graph looks efficient and your mspt looks terrible. Ask, in writing, whether the disk is NVMe and whether the core is dedicated. If the answer is a paragraph about “enterprise cloud,” assume it is shared and slow.</p>
+<p>Buy this when you want plugins and you will not maintain Linux. Do not buy it when you already know you want Aikar’s flags, a custom backup script, and a Spark report you can trust.</p>
+
+<h2>A KVM VPS</h2>
+<p>A KVM virtual machine is a Linux box with your own kernel view of the hardware the host assigned you. Plans from Hetzner, Netcup, OVH, Hostinger’s VPS line, and similar sellers run from about $5 for a small 4 GB box to about $40 for something with a faster dedicated vCPU and 8 GB. You install Java 21, Paper, and systemd yourself. The guide for that is the <a href="/guides/paper-minecraft-server-2026.html">step-by-step install</a>.</p>
+<p>This is the option I recommend for a server that is growing and still under a few dozen players. Root access is the feature: you can see <code>dmesg</code> when the killer fires, you can put backups on a schedule you understand, and you can refuse a flag panel that adds <code>-XX:+UseConcMarkSweepGC</code> because a template from 2017 still has it. The cost is that you are the administrator. Updates, the firewall, and the first time you lock yourself out of SSH are yours.</p>
+<p>Check three lines on the plan before the price:</p>
+<ul>
+  <li>NVMe, not “SSD,” and not a disk size with no type.</li>
+  <li>Dedicated vCPU, or a shared core whose clock speed they are willing to name.</li>
+  <li>Whether a traffic flood is filtered on their network or is your problem the moment you share the IP.</li>
+</ul>
+
+<h2>The PC at home</h2>
+<p>Home hosting is free until you add the power bill, the disk, and the afternoon your address gets scanned by something louder than a player. A machine drawing 100 watts for a month uses on the order of 70 kilowatt-hours. That is already in the price range of a small VPS at ordinary residential rates, and the home address is still the origin. Use a home server to test a world. Do not use it as the public IP of a community.</p>
+
+<h2>A straight recommendation</h2>
+<ul>
+  <li><strong>No plugins, a few friends:</strong> Realms.</li>
+  <li><strong>Plugins, and you do not want a shell:</strong> a shared host that will say NVMe and will let you set the heap.</li>
+  <li><strong>Plugins, and you are willing to SSH:</strong> a KVM VPS, 4 GB for a careful 10-player Paper box, 8 GB once you expect 20 people or real farms.</li>
+  <li><strong>A large modpack or 50 or more players:</strong> stop comparing $8 plans. You want a dedicated core you can name, often a dedicated machine, and the RAM row in the <a href="/guides/paper-ram-view-distance.html">RAM guide</a>.</li>
+</ul>
+<p>None of these sellers paid for this page. Prices are bands, not quotes. If a plan is half the price of everyone else and will not name the CPU, it is not a deal. It is the noisy neighbor, with a coupon.</p>
+
+
+<footer class="site">
+  <p><a href="/">Minecraft Web</a> · <a href="/guides/">Server guides</a> · <a href="/about.html">About</a> · <a href="/editorial-policy.html">Editorial policy</a> · <a href="/privacy.html">Privacy</a> · <a href="/terms.html">Terms</a> · <a href="/contact.html">Contact</a></p>
+  <p>Minecraft Web is an unofficial fan project. It is not affiliated with, endorsed by, or associated with Mojang Studios or Microsoft. Minecraft is a trademark of Mojang Studios. Hosting names are for identification. This site does not use affiliate links in its server guides.</p>
+</footer>
+
+</div>
+</body>
+</html>
