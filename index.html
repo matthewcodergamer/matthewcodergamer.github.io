@@ -404,7 +404,7 @@ Prioritize strong single-core performance over a high advertised core count. Min
     <div class="gate-kicker">ADVERTISEMENT</div>
     <div class="gate-title" id="gate-title">Watch to unlock the game</div>
     <div class="gate-ad" id="gate-ad" aria-label="Advertisement"><span>Loading ad&#8230;</span></div>
-    <div class="gate-count"><span id="gate-n">15</span>s</div>
+    <div class="gate-count"><span id="gate-n">5</span>s</div>
     <div class="gate-sub" id="gate-sub">Preparing Minecraft&#8230; you only have to download this once.</div>
     <div class="gate-prog"><i id="gate-fill"></i></div>
     <div class="gate-bytes" id="gate-bytes">0 / 0 MB</div>
@@ -422,10 +422,12 @@ Prioritize strong single-core performance over a high advertised core count. Min
   var gate = $('gate'), gateN = $('gate-n'), gateSub = $('gate-sub'), gateFill = $('gate-fill'),
       gateBytes = $('gate-bytes'), gateAd = $('gate-ad');
   var load = $('load'), loadDots = $('load-dots');
-  var MANIFEST = '/MinecraftWeb/clientmain.parts.json';
+  var HF_BASE = 'https://huggingface.co/spaces/matthewcodergamer/minecraft-browser/resolve/main/';
+  var LOCAL_BASE = '/MinecraftWeb/';
   var CACHE = 'mw-game-v1';
+  var GATE_SECONDS = 5;
   var total = 0, done = 0, downloading = null, dlDone = false;
-  var gateLeft = 15, gateTimer = null, gateDone = false, launching = false;
+  var gateLeft = GATE_SECONDS, gateTimer = null, gateCountdownDone = false, adSettled = false, gateDone = false, launching = false;
   var fmt = function (n) { return (n / 1e6).toFixed(1); };
   var pass = function (u) { return new URL(u, location.href).href; };
 
@@ -442,64 +444,80 @@ Prioritize strong single-core performance over a high advertised core count. Min
     gateFill.style.width = pct + '%';
     gateBytes.textContent = fmt(done) + ' / ' + fmt(total) + ' MB';
   }
-  async function readCached(cache, url, size) {
-    if (!cache) return null;
-    try {
-      var r = await cache.match(pass(url));
-      if (!r) return null;
-      var b = await r.arrayBuffer();
-      if (!size || b.byteLength === size) return b;
-    } catch (e) {}
-    return null;
-  }
-  async function fetchPart(url, size, onBytes) {
-    var r = await fetch(pass(url), { cache: 'no-store' });
-    if (!r.ok) throw new Error('HTTP ' + r.status + ' for ' + url);
+  async function fetchPart(remoteUrl, localUrl, size, onBytes) {
+    var r = await fetch(pass(remoteUrl), { cache: 'no-store' });
+    if (!r.ok) throw new Error('HTTP ' + r.status + ' for ' + remoteUrl);
+    var declared = Number(r.headers.get('content-length')) || size || 0;
+    if (!total && declared) total = declared;
     var reader = r.body.getReader(), chunks = [], got = 0;
     for (;;) {
       var step = await reader.read();
       if (step.done) break;
       chunks.push(step.value); got += step.value.length;
-      onBytes(got);
+      onBytes(got, declared);
     }
     var blob = new Blob(chunks, { type: 'application/octet-stream' });
+    if (size && blob.size !== size) {
+      throw new Error('Size mismatch for ' + remoteUrl + ': got ' + blob.size + ', expected ' + size);
+    }
     try {
       var c = await caches.open(CACHE);
-      await c.put(pass(url), new Response(blob, {
-        headers: { 'content-type': 'application/octet-stream', 'content-length': String(blob.size) }
-      }));
+      var headers = { 'content-type': 'application/octet-stream', 'content-length': String(blob.size) };
+      await c.put(pass(localUrl), new Response(blob, { headers: headers }));
+      await c.put(pass(remoteUrl), new Response(blob, { headers: headers }));
     } catch (e) {}
-    if (size && blob.size !== size) throw new Error('Size mismatch for ' + url);
     return blob;
+  }
+  var manifestPromise = null;
+  function readManifest() {
+    if (manifestPromise) return manifestPromise;
+    manifestPromise = (async function () {
+      var urls = [HF_BASE + 'clientmain.parts.json', LOCAL_BASE + 'clientmain.parts.json'];
+      var last = null;
+      for (var i = 0; i < urls.length; i++) {
+        try {
+          var r = await fetch(pass(urls[i]), { cache: 'no-store' });
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return await r.json();
+        } catch (e) { last = e; console.warn('manifest failed', urls[i], e); }
+      }
+      throw last || new Error('Could not read the game manifest');
+    })();
+    manifestPromise.catch(function () { manifestPromise = null; });
+    return manifestPromise;
+  }
+  function manifestTotal(man) {
+    var parts = (man.parts || []).map(function (p) { return typeof p === 'string' ? { name: p } : p; });
+    return man.downloadTotal || parts.reduce(function (n, p) { return n + (p.size || 0); }, 0);
   }
   async function ensureDownload() {
     if (downloading) return downloading;
     downloading = (async function () {
       showProgress(0);
-      var r = await fetch(MANIFEST, { cache: 'no-cache' });
-      if (!r.ok) throw new Error('Could not read the game manifest');
-      var man = await r.json();
+      var man = await readManifest();
       var parts = (man.parts || []).map(function (p) { return typeof p === 'string' ? { name: p } : p; });
-      total = man.downloadTotal || parts.reduce(function (n, p) { return n + (p.size || 0); }, 0);
+      total = manifestTotal(man);
       showProgress(0);
-      var cache = null;
-      try { cache = await caches.open(CACHE); } catch (e) {}
       var base = 0;
       for (var i = 0; i < parts.length; i++) {
-        var p = parts[i], size = p.size || 0, url = '/MinecraftWeb/' + p.name;
-        if (await readCached(cache, url, size)) {
-          base += size; showProgress(base); continue;
+        var p = parts[i], size = p.size || 0, name = p.name || p.file;
+        var remote = HF_BASE + name, local = LOCAL_BASE + name;
+        dlLabel.textContent = 'DOWNLOADING ' + name.toUpperCase();
+        var start = base, blob;
+        try {
+          blob = await fetchPart(remote, local, size, function (got) { showProgress(start + got); });
+        } catch (err) {
+          console.warn('Hugging Face part failed; retrying same-origin', name, err);
+          blob = await fetchPart(local, local, size, function (got) { showProgress(start + got); });
         }
-        if (cache) { try { await cache.delete(pass(url)); } catch (e) {} }
-        var start = base;
-        await fetchPart(url, size, function (got) { showProgress(start + got); });
-        base += size; showProgress(base);
+        base += blob.size;
+        showProgress(base);
       }
       dlDone = true;
-      setState('WAITING ON INSTALL\u2026', 'waiting');
-      if (!gateDone) gateSub.textContent = 'Waiting on install\u2026';
+      dlLabel.textContent = 'DOWNLOAD COMPLETE';
+      setState('INSTALLING\u2026', 'waiting');
       showProgress(total);
-      await new Promise(function (r) { setTimeout(r, 600); });
+      await new Promise(function (r) { setTimeout(r, 400); });
       return true;
     })();
     downloading.catch(function (e) {
@@ -512,11 +530,24 @@ Prioritize strong single-core performance over a high advertised core count. Min
     });
     return downloading;
   }
+  function beginDownload() {
+    if (dlDone) { maybeLaunch(); return; }
+    gateSub.textContent = 'Downloading the Java client from Hugging Face\u2026';
+    dlLabel.textContent = 'DOWNLOADING\u2026';
+    ensureDownload().then(function () {
+      gateSub.textContent = 'Starting Minecraft\u2026';
+      maybeLaunch();
+    });
+  }
   function fillGateAd() {
     if (!gateAd) return;
     var slots = window.SITE_AD_SLOTS || {};
-    if (slots.wait && window.mwFillAd) { window.mwFillAd(gateAd, 'wait'); return; }
-    if (!gateAd.querySelector('.gate-house')) {
+    if (slots.wait && window.mwFillAd) {
+      gateAd.innerHTML = '';
+      window.mwFillAd(gateAd, 'wait');
+      return;
+    }
+    if (!gateAd.querySelector('.gate-house') && !gateAd.querySelector('ins')) {
       gateAd.innerHTML = '<div class="gate-house"><img src="/assets/ui/minecraft.png" alt="Minecraft"><span>Advertisement</span></div>';
     }
   }
@@ -532,32 +563,63 @@ Prioritize strong single-core performance over a high advertised core count. Min
       location.href = '/MinecraftWeb/game.html?play=1';
     }, 1700);
   }
+  function checkGateDone() {
+    if (gateDone || !gateCountdownDone || !adSettled) return;
+    gateDone = true;
+    gateSub.textContent = 'Advertisement finished. Downloading\u2026';
+    beginDownload();
+  }
+  function requestAd() {
+    return new Promise(function (resolve) {
+      var settled = false, started = false;
+      var finish = function (real) { if (settled) return; settled = true; resolve(!!real); };
+      if (typeof window.adBreak !== 'function' || !window.__h5Ready) { finish(false); return; }
+      try {
+        window.adBreak({
+          type: 'start',
+          name: 'play_button',
+          beforeAd: function () { started = true; gateSub.textContent = 'Advertisement playing\u2026'; },
+          adBreakDone: function (info) {
+            var viewed = started || (info && (info.breakStatus === 'viewed' || info.breakStatus === 'dismissed'));
+            finish(viewed);
+          }
+        });
+      } catch (e) { finish(false); return; }
+      setTimeout(function () { finish(started); }, 9000);
+    });
+  }
   function startGate() {
     gate.classList.add('on');
-    gateLeft = 15; gateDone = false; gateN.textContent = '15';
-    gateSub.textContent = 'Preparing Minecraft\u2026 you only have to download this once.';
+    gateLeft = GATE_SECONDS; gateCountdownDone = false; adSettled = false; gateDone = false;
+    gateN.textContent = String(GATE_SECONDS);
+    gateSub.textContent = 'Loading advertisement\u2026';
     fillGateAd();
+    readManifest().then(function (man) {
+      total = manifestTotal(man);
+      if (total && !dlDone) showProgress(0);
+    }).catch(function () {});
     if (gateTimer) clearInterval(gateTimer);
     gateTimer = setInterval(function () {
       gateLeft--;
       gateN.textContent = String(Math.max(0, gateLeft));
       if (gateLeft <= 0) {
         clearInterval(gateTimer); gateTimer = null;
-        gateDone = true;
-        gateSub.textContent = dlDone ? 'Starting Minecraft\u2026' : 'Waiting on install\u2026';
-        maybeLaunch();
+        gateCountdownDone = true;
+        checkGateDone();
       }
     }, 1000);
+    requestAd().then(function (real) {
+      adSettled = true;
+      if (!real) gateSub.textContent = 'Advertisement unavailable \u2014 continuing\u2026';
+      checkGateDone();
+    });
   }
   function start() {
     if (launching) return;
     setState('PREPARING\u2026', 'preparing');
+    if (gateDone) { beginDownload(); return; }
     dlLabel.textContent = 'PREPARING\u2026';
     startGate();
-    ensureDownload().then(function () {
-      if (gateDone) gateSub.textContent = 'Starting Minecraft\u2026';
-      maybeLaunch();
-    });
   }
   playBtn.addEventListener('click', function () {
     if (playBtn.getAttribute('data-state') === 'retry') { setState('PREPARING\u2026', 'preparing'); }

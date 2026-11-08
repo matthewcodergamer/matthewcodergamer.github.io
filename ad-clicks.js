@@ -17,7 +17,7 @@
   try{adConfig({preloadAdBreaks:'on',sound:'on',onReady:function(){window.__h5Ready=true}})}catch(e){}
   /* Arriving on the site: a full-screen "preroll" ad first (H5 Games Ads), once per visit */
   try{if(!sessionStorage.getItem('mw_preroll')){sessionStorage.setItem('mw_preroll','1');adBreak({type:'preroll',adBreakDone:function(){}})}}catch(e){}
-  var WAIT=0; /* the launcher owns the 15 s gate; do not add a second countdown */
+  var WAIT=0; /* the launcher owns the 5 s ad gate; do not add a second countdown */
 
   var gate=null;
   function overlay(){
