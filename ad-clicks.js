@@ -17,7 +17,7 @@
   try{adConfig({preloadAdBreaks:'on',sound:'on',onReady:function(){window.__h5Ready=true}})}catch(e){}
   /* Arriving on the site: a full-screen "preroll" ad first (H5 Games Ads), once per visit */
   try{if(!sessionStorage.getItem('mw_preroll')){sessionStorage.setItem('mw_preroll','1');adBreak({type:'preroll',adBreakDone:function(){}})}}catch(e){}
-  var WAIT=5; /* seconds on the PLAY loading screen while the ad loads/plays */
+  var WAIT=0; /* the launcher owns the 15 s gate; do not add a second countdown */
 
   var gate=null;
   function overlay(){
@@ -39,13 +39,13 @@
     var u;try{u=new URL(a.href,location.href)}catch(x){return}
     if(u.origin!==location.origin)return;
     if(u.pathname===location.pathname&&u.search===location.search&&u.hash)return; /* same-page anchor */
-    var game=/^\/MinecraftWeb\//.test(u.pathname);
+    var game=/^\/MinecraftWeb\/(game\.html)?$/.test(u.pathname);
     if(!game&&!window.__h5Ready)return;                                        /* website pages: vignette handles it */
     e.preventDefault();
     var done=false,showing=false,waited=!game,adDone=false;
     function go(){if(done||!waited||!adDone)return;done=true;
-      /* the game only opens with a fresh PLAY pass (checked by MinecraftWeb/index.html) */
-      if(game){try{localStorage.setItem('mw_play_pass',String(Date.now()))}catch(x){}}
+      /* the game only opens with a fresh PLAY pass (checked by MinecraftWeb/game.html) */
+      if(game){try{sessionStorage.setItem('mw_play_pass',String(Date.now()))}catch(x){}}
       /* leave through a real link so AdSense's vignette (full-screen ad between pages) can still show */
       if(!window.__h5Ready){var l=document.createElement('a');l.href=u.href;l.setAttribute('data-adpass','1');l.style.display='none';document.body.appendChild(l);l.click();setTimeout(function(){location.href=u.href},2500)}
       else location.href=u.href}

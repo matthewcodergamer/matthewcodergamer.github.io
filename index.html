@@ -13,11 +13,11 @@
 <link rel="dns-prefetch" href="https://fundingchoicesmessages.google.com">
 <meta name="google-adsense-account" content="ca-pub-5025566183652379">
 
-<link rel="icon" type="image/png" sizes="32x32" href="/MinecraftWeb/assets/icon/icon-32.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700;800&display=swap" media="print" onload="this.media='all'">
 <style>
-@font-face{font-family:'Minecraft Seven';src:url('/MinecraftWeb/assets/fonts/Minecraft-Seven.woff') format('woff');font-display:swap}
+@font-face{font-family:'Minecraft Seven';src:url('/assets/fonts/Minecraft-Seven.woff') format('woff');font-display:swap}
 :root{--bg:#1e1e1e;--line:#0e0e0e;--feed:#303030;--card:#0e0e0e;--text:#fff;--muted:#c6c6c6;--g:#008542;--g-top:#27ce40;--g-hi:#009047;--g-edge:#0c6e3d;--g-dk:#064d2a}
 *{box-sizing:border-box}html,body{margin:0;height:100%}
 body{background:var(--bg);color:var(--text);font-family:'Noto Sans',system-ui,-apple-system,'Segoe UI',sans-serif;font-size:14px;line-height:1.4;-webkit-font-smoothing:antialiased}
@@ -49,7 +49,7 @@ main{flex:1;min-width:0;display:flex;flex-direction:column}
 .tabs a{color:#e6e6e6;text-decoration:none;font-size:16px;padding:0 0 9px;position:relative;white-space:nowrap}
 .tabs a.on{color:#fff;font-weight:700}.tabs a.on:after{content:'';position:absolute;left:0;width:24px;bottom:2px;height:3px;background:var(--g)}
 .tabs a:hover{color:#fff}
-.qp{display:flex;align-items:center;gap:10px;color:#fff;text-decoration:none;font-size:13px;font-weight:700;margin-bottom:22px}
+.qp{display:flex;align-items:center;gap:10px;color:#fff;text-decoration:none;font-size:13px;font-weight:700;margin-bottom:22px;border:0;background:none;cursor:pointer;font-family:inherit}
 .qp img{width:40px;height:40px;padding:4px;background:#0f6b35;border:2px solid #000;box-shadow:inset 0 2px #27ce40;image-rendering:pixelated}
 /* ---- key art ---- */
 .hero{position:relative;flex:none;height:clamp(300px,calc(100vh - 455px),720px);background:#000 url('/img/launcher-art.jpg?v=11') center top/cover no-repeat}
@@ -65,7 +65,7 @@ html.fromGame .ready{display:block}
 .inst img{width:28px;height:28px;image-rendering:pixelated}
 .inst b{display:block;font-size:13px;font-weight:700;line-height:1.25}.inst span{font-size:11px;color:var(--muted)}
 .inst i{font-style:normal;color:#ddd;margin-left:34px;font-size:12px}
-.user{font-weight:700;font-size:13px}
+.user{font-weight:700;font-size:13px;color:#fff;text-decoration:none}
 .play{position:absolute;left:50%;top:-13px;transform:translateX(-50%);display:block;width:235px;height:53px;padding:2px 2px;background:#000;text-decoration:none;
   clip-path:polygon(4px 0,calc(100% - 4px) 0,calc(100% - 4px) 2px,calc(100% - 2px) 2px,calc(100% - 2px) 4px,100% 4px,100% calc(100% - 4px),calc(100% - 2px) calc(100% - 4px),calc(100% - 2px) calc(100% - 2px),calc(100% - 4px) calc(100% - 2px),calc(100% - 4px) 100%,4px 100%,4px calc(100% - 2px),2px calc(100% - 2px),2px calc(100% - 4px),0 calc(100% - 4px),0 4px,2px 4px,2px 2px,4px 2px)}
 .play span{clip-path:polygon(2px 0,calc(100% - 2px) 0,100% 2px,100% calc(100% - 2px),calc(100% - 2px) 100%,2px 100%,0 calc(100% - 2px),0 2px);display:flex;align-items:center;justify-content:center;width:100%;height:100%;color:#fff;background:linear-gradient(var(--g-hi),var(--g));
@@ -98,15 +98,83 @@ footer{background:var(--feed);color:#a9a9a9;font-size:12px;text-align:center;pad
   .mnav{display:flex;gap:0;overflow-x:auto;background:var(--bg);border-bottom:1px solid var(--line);scrollbar-width:none}
   .mnav a{flex:none;display:flex;align-items:center;gap:8px;color:#fff;text-decoration:none;font-size:13px;font-weight:600;padding:10px 14px;border-right:1px solid var(--line)}
   .mnav a img{width:20px;height:20px;image-rendering:pixelated}.mnav a.on{background:#2b2b2b;box-shadow:inset 0 -3px #fff}
-  .top{height:auto;padding:12px 14px 0}.tabs{gap:22px}.tabs a{font-size:15px}.qp span{display:none}.qp{margin-bottom:8px}.qp img{width:34px;height:34px}
+  .top{height:auto;padding:12px 14px 0}.top>div{min-width:0;flex:1}.tabs{gap:22px;overflow-x:auto;max-width:100%;scrollbar-width:none;-webkit-overflow-scrolling:touch}.tabs a{font-size:15px}.qp{display:none}
   .hero{height:56vw;min-height:220px;max-height:60vh}
   .bar{height:auto;padding:52px 12px 12px}.play{top:-14px;width:min(235px,64vw)}
   .feed{padding:20px 10px}.news{grid-template-columns:1fr}.news .pic{min-height:0;aspect-ratio:16/9}.news h3{font-size:19px}
   .info{padding-left:10px;padding-right:10px}
 }
 @media(max-height:500px){.hero{height:calc(100vh - 150px);min-height:160px}.mnav{display:none}.top h6{display:none}}
+
+/* ---- Dappled Forest panorama (slow crossfade + drift) ---- */
+.hero{background:#000 url('/assets/panorama/panorama_0.png') center/cover no-repeat;overflow:hidden}
+.hero .pano{position:absolute;inset:-5%;background-position:center;background-size:cover;opacity:0;will-change:opacity,transform;animation:panoFade 33s ease-in-out infinite}
+.hero .pano.p0{background-image:url('/assets/panorama/panorama_0.png');animation:panoFirst 33s ease-in-out infinite}
+.hero .pano.p1{background-image:url('/assets/panorama/panorama_2.png');animation-delay:11s}
+.hero .pano.p2{background-image:url('/assets/panorama/panorama_4.png');animation-delay:22s}
+@keyframes panoFirst{0%{opacity:1;transform:scale(1.04)}28%{opacity:1;transform:scale(1.1) translate3d(-1.2%,-.8%,0)}36%{opacity:0;transform:scale(1.12) translate3d(-1.4%,-1%,0)}100%{opacity:0;transform:scale(1.12) translate3d(-1.4%,-1%,0)}}
+@keyframes panoFade{0%{opacity:0;transform:scale(1.04) translate3d(0,0,0)}5%{opacity:1}28%{opacity:1}36%{opacity:0;transform:scale(1.12) translate3d(-1.4%,-1%,0)}100%{opacity:0;transform:scale(1.12) translate3d(-1.4%,-1%,0)}}
+.hero:after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.28),rgba(0,0,0,0) 34%,rgba(0,0,0,.58));z-index:1;pointer-events:none}
+.logo,.vid,.ready{z-index:2}
+@media(prefers-reduced-motion:reduce){.hero .pano{animation:none}.hero .pano.p0{opacity:1}}
+/* ---- top leaderboard slot (desktop) ---- */
+.ad-top{max-width:970px;margin:0 auto;min-height:90px;background:transparent}
+.ad-top:empty{display:none}
+@media(max-width:960px){.ad-top{display:none}}
+/* ---- PLAY button states ---- */
+.play{border:0;font:inherit;cursor:pointer}
+.play .play-state{display:none}
+.play-state{font-family:'Minecraft Seven',system-ui,sans-serif;font-size:16px;letter-spacing:.03em;text-align:center;line-height:1.15;padding:0 8px}
+.play[data-state] .play-svg{display:none}
+.play[data-state] .play-state{display:flex;align-items:center;justify-content:center}
+.play[data-state="retry"] span{background:linear-gradient(#a3452b,#7d2f1d)}
+.play:focus-visible{outline:3px solid #7fcf3f;outline-offset:3px}
+/* ---- bar extras ---- */
+.bar-right{display:flex;align-items:center;gap:10px}
+.block-btn{width:30px;height:30px;padding:2px;background:#1f6b35;border:2px solid #000;box-shadow:inset 0 2px #27ce40;cursor:pointer}
+.block-btn img{width:100%;height:100%;image-rendering:pixelated;display:block}
+.dots{background:none;border:0;color:#fff;font-size:20px;line-height:1;cursor:pointer;padding:0 2px}
+.copy{background:none;border:0;color:#aaa;font-size:16px;cursor:pointer;padding:0 2px}
+.copy:hover{color:#fff}
+/* ---- real download strip ---- */
+.dl{display:none;background:#0b0b0b;border-top:1px solid #000;border-bottom:1px solid #000;padding:9px 20px}
+.dl.on{display:block}
+.dl .row{max-width:800px;margin:0 auto;display:flex;align-items:center;gap:12px;font-size:12px;color:#d8d8d8}
+.dl .track{flex:1;height:10px;background:#1d1d1d;border:1px solid #000;box-shadow:inset 0 0 0 1px #333;padding:1px}
+.dl .fill{display:block;height:100%;width:0;background:linear-gradient(180deg,#b6ff7a,#6cd13a 55%,#4a9e2f);transition:width .18s linear}
+.dl .pct{min-width:44px;text-align:right;font-family:'Minecraft Seven',system-ui,sans-serif}
+.dl .bytes{min-width:118px;text-align:right;color:#a9a9a9}
+/* ---- 15 s ad gate ---- */
+.gate{position:fixed;inset:0;z-index:10000;display:none;place-items:center;background:rgba(0,0,0,.93);padding:16px}
+.gate.on{display:grid}
+.gate-box{width:min(560px,96vw);background:#141414;border:2px solid #000;box-shadow:0 0 0 2px #3a3a3a,0 24px 90px rgba(0,0,0,.85);padding:20px 20px 18px;text-align:center;color:#fff}
+.gate-kicker{font-size:10px;letter-spacing:.22em;color:#9a9a9a}
+.gate-title{font-family:'Minecraft Seven',system-ui,sans-serif;font-size:23px;line-height:1.2;margin-top:6px}
+.gate-ad{min-height:250px;width:min(336px,92%);margin:14px auto 6px;display:grid;place-items:center;background:#0b0b0b;border:1px dashed #333;color:#8b8b8b;font-size:12px;overflow:hidden}
+.gate-house{display:grid;justify-items:center;gap:6px;padding:14px}
+.gate-house img{width:150px;image-rendering:pixelated;opacity:.55}
+.gate-count{font-family:'Minecraft Seven',system-ui,sans-serif;font-size:34px;color:#7fcf3f;line-height:1.1;margin-top:2px}
+.gate-sub{font-size:13px;color:#b9b9b9;margin-top:4px}
+.gate-prog{width:min(420px,92%);height:9px;background:#222;border:1px solid #000;box-shadow:inset 0 0 0 1px #333;padding:1px;margin:12px auto 0}
+.gate-prog i{display:block;height:100%;width:0;background:linear-gradient(180deg,#b6ff7a,#6cd13a 55%,#4a9e2f);transition:width .18s linear}
+.gate-bytes{font-size:12px;color:#a9a9a9;margin-top:6px}
+/* ---- 1:1 loading screen ---- */
+.load{position:fixed;inset:0;z-index:10001;display:none;place-items:center;background:#000}
+.load.on{display:grid}
+.load-win{width:min(680px,92vw);height:min(360px,70vh);border:3px solid #ff8a00;box-shadow:inset 0 0 0 2px #2b1600,0 0 34px rgba(255,138,0,.28);display:grid;place-items:center;background:#000}
+.load-text{font-family:'Minecraft Seven',system-ui,sans-serif;font-size:28px;letter-spacing:.09em;color:#f2f2f2}
+.load-text i{font-style:normal}
+@media(max-width:600px){.bar-right .block-btn,.bar-right .dots,.bar-right .copy{display:none}.bar-right{position:absolute;right:12px;top:20px}.dl .bytes{display:none}}
+
+
+/* ---- long guide content must not widen the launcher ---- */
+.info pre{max-width:100%;overflow-x:auto;background:#000;border:1px solid #2a2a2a;padding:12px;margin:12px 0}
+.info code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px}
+.info table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0}
+.info th,.info td{border:1px solid #333;padding:6px 8px;text-align:left}
+@media(max-width:700px){.info table{display:block;overflow-x:auto}.info pre code{white-space:pre-wrap;word-break:break-word}}
 </style>
-<script>if(/[?&]play=1/.test(location.search))document.documentElement.classList.add('fromGame')</script>
+<script>if(/[?&](play|from)=/.test(location.search))document.documentElement.classList.add('fromGame')</script>
 <script>try{localStorage.setItem('mw_site_visit',String(Date.now()))}catch(e){}</script>
 
 
@@ -124,37 +192,52 @@ footer{background:var(--feed);color:#a9a9a9;font-size:12px;text-align:center;pad
 <body>
 <div class="app">
 <aside>
-  <a class="acct" href="/guide.html#about"><img src="/MinecraftWeb/assets/icon/icon-192.png" alt=""><div><b>Player</b><span>Web account</span></div><i>&#8964;</i></a>
-  <a class="it plain" href="/guide.html#about"><img src="/MinecraftWeb/assets/java/26.1/items/oak_door.png" alt=""><span class="t"><span class="n">Home</span></span></a>
-  <a class="it on" href="/"><img src="/MinecraftWeb/assets/icon/icon-192.png" alt=""><span class="t"><small>MINECRAFT:</small><span class="n">Java Edition</span></span></a>
-  <a class="it" href="/guide.html"><img src="/MinecraftWeb/assets/java/26.1/items/written_book.png" alt=""><span class="t"><small>MINECRAFT</small><span class="n">Game Guide</span></span></a>
-  <a class="it" href="/guide.html#install"><img src="/MinecraftWeb/assets/java/26.1/items/ender_eye.png" alt=""><span class="t"><small>MINECRAFT</small><span class="n">Install App</span></span></a>
-  <div class="ad-side" data-ad="side"><!-- Auto ads may place a unit here --></div>
+  <a class="acct" href="/guide.html#about"><img src="/assets/ui/player-head.png" alt=""><div><b>NekinMe</b><span>Microsoft account</span></div><i>&#8964;</i></a>
+  <a class="it plain" href="/"><img src="/assets/java/26.3/items/oak_door.png" alt=""><span class="t"><span class="n">Home</span></span></a>
+  <a class="it on" href="/"><img src="/assets/java/26.3/blocks/grass_block_side.png" alt=""><span class="t"><small>MINECRAFT:</small><span class="n">Java Edition</span></span></a>
+  <a class="it" href="/guide.html#about"><img src="/assets/java/26.3/blocks/bedrock.png" alt=""><span class="t"><small>MINECRAFT:</small><span class="n">Bedrock Edition</span></span></a>
+  <a class="it" href="/guides/"><img src="/assets/java/26.3/items/iron_sword.png" alt=""><span class="t"><small>MINECRAFT</small><span class="n">Dungeons II</span></span></a>
+  <a class="it" href="/guides/"><img src="/assets/java/26.3/items/diamond_sword.png" alt=""><span class="t"><small>MINECRAFT</small><span class="n">Dungeons</span></span></a>
+  <a class="it" href="/guides/"><img src="/assets/java/26.3/blocks/lapis_block.png" alt=""><span class="t"><small>MINECRAFT</small><span class="n">Legends</span></span></a>
+  <a class="it" href="/guide.html#about"><img src="/assets/java/26.3/blocks/redstone_torch.png" alt=""><span class="t"><small>TRICKS</small><span class="n">OFF</span></span></a>
+  <div class="ad-side" data-ad="side"></div>
   <div class="bottom">
-    <a class="it plain" href="/guides/"><img src="/MinecraftWeb/assets/java/26.1/items/writable_book.png" alt=""><span class="t"><span class="n">Server Guides</span></span></a>
-    <a class="it plain" href="/privacy.html"><img src="/MinecraftWeb/assets/java/26.1/items/comparator.png" alt=""><span class="t"><span class="n">Settings</span></span></a>
-    <div class="ver">v.26.1 &#183; Minecraft Web</div>
+    <a class="it plain" href="/guide.html#about"><img src="/assets/java/26.3/items/writable_book.png" alt=""><span class="t"><span class="n">What&#8217;s New</span></span></a>
+    <a class="it plain" href="/privacy.html"><img src="/assets/java/26.3/items/comparator.png" alt=""><span class="t"><span class="n">Settings</span></span></a>
+    <div class="ver">v.26.3 &#183; Minecraft Web</div>
   </div>
 </aside>
 <main>
-  <div class="mnav"><a class="on" href="/"><img src="/MinecraftWeb/assets/icon/icon-192.png" alt="">Java Edition</a><a href="/guide.html"><img src="/MinecraftWeb/assets/java/26.1/items/written_book.png" alt="">Game Guide</a><a href="/guide.html#install"><img src="/MinecraftWeb/assets/java/26.1/items/ender_eye.png" alt="">Install App</a><a href="/guides/"><img src="/MinecraftWeb/assets/java/26.1/items/writable_book.png" alt="">Server Guides</a><a href="/privacy.html"><img src="/MinecraftWeb/assets/java/26.1/items/comparator.png" alt="">Settings</a></div>
+  <div class="mnav"><a class="on" href="/"><img src="/icons/icon-192.png" alt="">Java Edition</a><a href="/guide.html"><img src="/assets/java/26.3/items/written_book.png" alt="">Game Guide</a><a href="/guide.html#install"><img src="/assets/java/26.3/items/ender_eye.png" alt="">Install App</a><a href="/guides/"><img src="/assets/java/26.3/items/writable_book.png" alt="">Server Guides</a><a href="/privacy.html"><img src="/assets/java/26.3/items/comparator.png" alt="">Settings</a></div>
   <div class="top">
     <div><h6>MINECRAFT: JAVA EDITION</h6>
-    <div class="tabs"><a class="on" href="/">Play</a><a href="/guide.html#install">Installations</a><a href="/guide.html">Skins</a><a href="/guides/">Guides</a></div></div>
-    <a class="qp" href="/MinecraftWeb/"><span>QUICK PLAY</span><img src="/MinecraftWeb/assets/icon/icon-192.png" alt=""></a>
+    <div class="tabs"><a class="on" href="/">Play</a><a href="/guide.html#install">Installations</a><a href="/guides/paper-vs-realms-vs-vps.html">Realms</a><a href="/guide.html">Skins</a><a href="/guide.html#about">Patch Notes</a></div></div>
+    <button class="qp" id="qp" type="button"><span>QUICK PLAY</span><img src="/icons/icon-192.png" alt=""></button>
   </div>
-  <div class="hero" role="img" aria-label="Minecraft Java cherry grove">
-    <div class="logo"><img src="/MinecraftWeb/assets/java/26.1/gui/title/minecraft.png" alt="Minecraft"><img class="ed" src="/MinecraftWeb/assets/java/26.1/gui/title/edition.png" alt="Java Edition"></div>
+  <div class="ad-top" data-ad="top" aria-label="Advertisement"></div>
+  <div class="hero" role="img" aria-label="Dappled Forest panorama">
+    <div class="pano p0" aria-hidden="true"></div>
+    <div class="pano p1" aria-hidden="true"></div>
+    <div class="pano p2" aria-hidden="true"></div>
+    <div class="logo"><img src="/assets/ui/minecraft.png" alt="Minecraft"><img class="ed" src="/assets/ui/edition.png" alt="Java Edition"></div>
     <a class="vid" href="/guide.html" aria-label="Watch">&#9655;</a>
     <div class="ready">Your world is ready! Press Play to start.</div>
   </div>
   <div class="bar">
-    <a class="inst" href="/guide.html"><img src="/MinecraftWeb/assets/icon/icon-192.png" alt=""><div><b>Latest release</b><span>26.1</span></div><i>&#8964;</i></a>
-    <a class="play" href="/MinecraftWeb/" aria-label="Play Minecraft Java now"><span><svg class="pl" viewBox="0 0 28 8" width="60" height="17" aria-hidden="true" shape-rendering="crispEdges"><path fill="#0b4d2b" d="M1 1h1v1h-1zM2 1h1v1h-1zM3 1h1v1h-1zM4 1h1v1h-1zM5 1h1v1h-1zM1 2h1v1h-1zM2 2h1v1h-1zM5 2h1v1h-1zM6 2h1v1h-1zM1 3h1v1h-1zM2 3h1v1h-1zM5 3h1v1h-1zM6 3h1v1h-1zM1 4h1v1h-1zM2 4h1v1h-1zM3 4h1v1h-1zM4 4h1v1h-1zM5 4h1v1h-1zM1 5h1v1h-1zM2 5h1v1h-1zM1 6h1v1h-1zM2 6h1v1h-1zM1 7h1v1h-1zM2 7h1v1h-1zM8 1h1v1h-1zM9 1h1v1h-1zM8 2h1v1h-1zM9 2h1v1h-1zM8 3h1v1h-1zM9 3h1v1h-1zM8 4h1v1h-1zM9 4h1v1h-1zM8 5h1v1h-1zM9 5h1v1h-1zM8 6h1v1h-1zM9 6h1v1h-1zM8 7h1v1h-1zM9 7h1v1h-1zM10 7h1v1h-1zM11 7h1v1h-1zM12 7h1v1h-1zM13 7h1v1h-1zM16 1h1v1h-1zM17 1h1v1h-1zM18 1h1v1h-1zM19 1h1v1h-1zM15 2h1v1h-1zM16 2h1v1h-1zM19 2h1v1h-1zM20 2h1v1h-1zM15 3h1v1h-1zM16 3h1v1h-1zM19 3h1v1h-1zM20 3h1v1h-1zM15 4h1v1h-1zM16 4h1v1h-1zM17 4h1v1h-1zM18 4h1v1h-1zM19 4h1v1h-1zM20 4h1v1h-1zM15 5h1v1h-1zM16 5h1v1h-1zM19 5h1v1h-1zM20 5h1v1h-1zM15 6h1v1h-1zM16 6h1v1h-1zM19 6h1v1h-1zM20 6h1v1h-1zM15 7h1v1h-1zM16 7h1v1h-1zM19 7h1v1h-1zM20 7h1v1h-1zM22 1h1v1h-1zM23 1h1v1h-1zM26 1h1v1h-1zM27 1h1v1h-1zM22 2h1v1h-1zM23 2h1v1h-1zM26 2h1v1h-1zM27 2h1v1h-1zM22 3h1v1h-1zM23 3h1v1h-1zM26 3h1v1h-1zM27 3h1v1h-1zM23 4h1v1h-1zM24 4h1v1h-1zM25 4h1v1h-1zM26 4h1v1h-1zM24 5h1v1h-1zM25 5h1v1h-1zM24 6h1v1h-1zM25 6h1v1h-1zM24 7h1v1h-1zM25 7h1v1h-1z"/><path fill="#fff" d="M0 0h1v1h-1zM1 0h1v1h-1zM2 0h1v1h-1zM3 0h1v1h-1zM4 0h1v1h-1zM0 1h1v1h-1zM1 1h1v1h-1zM4 1h1v1h-1zM5 1h1v1h-1zM0 2h1v1h-1zM1 2h1v1h-1zM4 2h1v1h-1zM5 2h1v1h-1zM0 3h1v1h-1zM1 3h1v1h-1zM2 3h1v1h-1zM3 3h1v1h-1zM4 3h1v1h-1zM0 4h1v1h-1zM1 4h1v1h-1zM0 5h1v1h-1zM1 5h1v1h-1zM0 6h1v1h-1zM1 6h1v1h-1zM7 0h1v1h-1zM8 0h1v1h-1zM7 1h1v1h-1zM8 1h1v1h-1zM7 2h1v1h-1zM8 2h1v1h-1zM7 3h1v1h-1zM8 3h1v1h-1zM7 4h1v1h-1zM8 4h1v1h-1zM7 5h1v1h-1zM8 5h1v1h-1zM7 6h1v1h-1zM8 6h1v1h-1zM9 6h1v1h-1zM10 6h1v1h-1zM11 6h1v1h-1zM12 6h1v1h-1zM15 0h1v1h-1zM16 0h1v1h-1zM17 0h1v1h-1zM18 0h1v1h-1zM14 1h1v1h-1zM15 1h1v1h-1zM18 1h1v1h-1zM19 1h1v1h-1zM14 2h1v1h-1zM15 2h1v1h-1zM18 2h1v1h-1zM19 2h1v1h-1zM14 3h1v1h-1zM15 3h1v1h-1zM16 3h1v1h-1zM17 3h1v1h-1zM18 3h1v1h-1zM19 3h1v1h-1zM14 4h1v1h-1zM15 4h1v1h-1zM18 4h1v1h-1zM19 4h1v1h-1zM14 5h1v1h-1zM15 5h1v1h-1zM18 5h1v1h-1zM19 5h1v1h-1zM14 6h1v1h-1zM15 6h1v1h-1zM18 6h1v1h-1zM19 6h1v1h-1zM21 0h1v1h-1zM22 0h1v1h-1zM25 0h1v1h-1zM26 0h1v1h-1zM21 1h1v1h-1zM22 1h1v1h-1zM25 1h1v1h-1zM26 1h1v1h-1zM21 2h1v1h-1zM22 2h1v1h-1zM25 2h1v1h-1zM26 2h1v1h-1zM22 3h1v1h-1zM23 3h1v1h-1zM24 3h1v1h-1zM25 3h1v1h-1zM23 4h1v1h-1zM24 4h1v1h-1zM23 5h1v1h-1zM24 5h1v1h-1zM23 6h1v1h-1zM24 6h1v1h-1z"/></svg></span></a>
-    <a class="user" href="/guide.html#about" style="color:#fff;text-decoration:none">Player</a>
+    <a class="inst" href="/guide.html"><img src="/assets/java/26.3/items/written_book.png" alt=""><div><b>Latest release</b><span>26.3</span></div><i>&#8964;</i></a>
+    <button class="play" id="play" type="button" aria-label="Play Minecraft Java now"><span class="play-svg"><svg class="pl" viewBox="0 0 28 8" width="60" height="17" aria-hidden="true" shape-rendering="crispEdges"><path fill="#0b4d2b" d="M1 1h1v1h-1zM2 1h1v1h-1zM3 1h1v1h-1zM4 1h1v1h-1zM5 1h1v1h-1zM1 2h1v1h-1zM2 2h1v1h-1zM5 2h1v1h-1zM6 2h1v1h-1zM1 3h1v1h-1zM2 3h1v1h-1zM5 3h1v1h-1zM6 3h1v1h-1zM1 4h1v1h-1zM2 4h1v1h-1zM3 4h1v1h-1zM4 4h1v1h-1zM5 4h1v1h-1zM1 5h1v1h-1zM2 5h1v1h-1zM1 6h1v1h-1zM2 6h1v1h-1zM1 7h1v1h-1zM2 7h1v1h-1zM8 1h1v1h-1zM9 1h1v1h-1zM8 2h1v1h-1zM9 2h1v1h-1zM8 3h1v1h-1zM9 3h1v1h-1zM8 4h1v1h-1zM9 4h1v1h-1zM8 5h1v1h-1zM9 5h1v1h-1zM8 6h1v1h-1zM9 6h1v1h-1zM8 7h1v1h-1zM9 7h1v1h-1zM10 7h1v1h-1zM11 7h1v1h-1zM12 7h1v1h-1zM13 7h1v1h-1zM16 1h1v1h-1zM17 1h1v1h-1zM18 1h1v1h-1zM19 1h1v1h-1zM15 2h1v1h-1zM16 2h1v1h-1zM19 2h1v1h-1zM20 2h1v1h-1zM15 3h1v1h-1zM16 3h1v1h-1zM19 3h1v1h-1zM20 3h1v1h-1zM15 4h1v1h-1zM16 4h1v1h-1zM17 4h1v1h-1zM18 4h1v1h-1zM19 4h1v1h-1zM20 4h1v1h-1zM15 5h1v1h-1zM16 5h1v1h-1zM19 5h1v1h-1zM20 5h1v1h-1zM15 6h1v1h-1zM16 6h1v1h-1zM19 6h1v1h-1zM20 6h1v1h-1zM15 7h1v1h-1zM16 7h1v1h-1zM19 7h1v1h-1zM20 7h1v1h-1zM22 1h1v1h-1zM23 1h1v1h-1zM26 1h1v1h-1zM27 1h1v1h-1zM22 2h1v1h-1zM23 2h1v1h-1zM26 2h1v1h-1zM27 2h1v1h-1zM22 3h1v1h-1zM23 3h1v1h-1zM26 3h1v1h-1zM27 3h1v1h-1zM23 4h1v1h-1zM24 4h1v1h-1zM25 4h1v1h-1zM26 4h1v1h-1zM24 5h1v1h-1zM25 5h1v1h-1zM24 6h1v1h-1zM25 6h1v1h-1zM24 7h1v1h-1zM25 7h1v1h-1z"/><path fill="#fff" d="M0 0h1v1h-1zM1 0h1v1h-1zM2 0h1v1h-1zM3 0h1v1h-1zM4 0h1v1h-1zM0 1h1v1h-1zM1 1h1v1h-1zM4 1h1v1h-1zM5 1h1v1h-1zM0 2h1v1h-1zM1 2h1v1h-1zM4 2h1v1h-1zM5 2h1v1h-1zM0 3h1v1h-1zM1 3h1v1h-1zM2 3h1v1h-1zM3 3h1v1h-1zM4 3h1v1h-1zM0 4h1v1h-1zM1 4h1v1h-1zM0 5h1v1h-1zM1 5h1v1h-1zM0 6h1v1h-1zM1 6h1v1h-1zM7 0h1v1h-1zM8 0h1v1h-1zM7 1h1v1h-1zM8 1h1v1h-1zM7 2h1v1h-1zM8 2h1v1h-1zM7 3h1v1h-1zM8 3h1v1h-1zM7 4h1v1h-1zM8 4h1v1h-1zM7 5h1v1h-1zM8 5h1v1h-1zM7 6h1v1h-1zM8 6h1v1h-1zM9 6h1v1h-1zM10 6h1v1h-1zM11 6h1v1h-1zM12 6h1v1h-1zM15 0h1v1h-1zM16 0h1v1h-1zM17 0h1v1h-1zM18 0h1v1h-1zM14 1h1v1h-1zM15 1h1v1h-1zM18 1h1v1h-1zM19 1h1v1h-1zM14 2h1v1h-1zM15 2h1v1h-1zM18 2h1v1h-1zM19 2h1v1h-1zM14 3h1v1h-1zM15 3h1v1h-1zM16 3h1v1h-1zM17 3h1v1h-1zM18 3h1v1h-1zM19 3h1v1h-1zM14 4h1v1h-1zM15 4h1v1h-1zM18 4h1v1h-1zM19 4h1v1h-1zM14 5h1v1h-1zM15 5h1v1h-1zM18 5h1v1h-1zM19 5h1v1h-1zM14 6h1v1h-1zM15 6h1v1h-1zM18 6h1v1h-1zM19 6h1v1h-1zM21 0h1v1h-1zM22 0h1v1h-1zM25 0h1v1h-1zM26 0h1v1h-1zM21 1h1v1h-1zM22 1h1v1h-1zM25 1h1v1h-1zM26 1h1v1h-1zM21 2h1v1h-1zM22 2h1v1h-1zM25 2h1v1h-1zM26 2h1v1h-1zM22 3h1v1h-1zM23 3h1v1h-1zM24 3h1v1h-1zM25 3h1v1h-1zM23 4h1v1h-1zM24 4h1v1h-1zM23 5h1v1h-1zM24 5h1v1h-1zM23 6h1v1h-1zM24 6h1v1h-1z"/></svg></span><span class="play-state" id="play-state"></span></button>
+    <div class="bar-right">
+      <button class="block-btn" id="block-btn" type="button" aria-label="Open skin settings"><img src="/assets/java/26.3/blocks/emerald_block.png" alt=""></button>
+      <button class="dots" id="dots" type="button" aria-label="More options">&#8942;</button>
+      <a class="user" href="/guide.html#about">NekinMe</a>
+      <button class="copy" id="copy-user" type="button" aria-label="Copy username">&#10697;</button>
+    </div>
+  </div>
+  <div class="dl" id="dl" aria-live="polite">
+    <div class="row"><span id="dl-label">PREPARING&#8230;</span><div class="track"><i class="fill" id="dl-fill"></i></div><span class="pct" id="dl-pct">0%</span><span class="bytes" id="dl-bytes">0 / 0 MB</span></div>
   </div>
   <div class="feed"><div class="feedin">
-    <a class="news" href="/guide.html"><div class="pic"><img src="/img/sunset.jpg" alt="Minecraft Java village at golden hour with Photon shaders"></div><div class="txt"><h3>Minecraft Java is on your phone</h3><div class="meta"><span>Java Edition</span>26.1</div><p>A browser block-building game with survival, creative, and touch controls. No install. Not the official Java client.</p><span class="more">Read more &#8599;</span></div></a>
+    <a class="news" href="/guide.html"><div class="pic"><img src="/img/sunset.jpg" alt="Minecraft Java village at golden hour with Photon shaders"></div><div class="txt"><h3>Minecraft Java is on your phone</h3><div class="meta"><span>Java Edition</span>26.3</div><p>A browser block-building game with survival, creative, and touch controls. No install. Not the official Java client.</p><span class="more">Read more &#8599;</span></div></a>
     <a class="news" href="/guides/paper-minecraft-server-2026.html"><div class="pic"><img src="/img/village.jpg" alt="A generated village, the kind of world a 24/7 server has to keep ticking"></div><div class="txt"><h3>Set up a 24/7 Paper server</h3><div class="meta"><span>Hosting</span>Updated Nov 2026</div><p>RAM, NVMe, Aikar’s flags, and a systemd install for Ubuntu — the decisions a panel usually hides.</p><span class="more">Read the guide &#8599;</span></div></a>
     <div class="ad-wide" data-ad="wide"><!-- Auto ads may place a unit here --></div>
     <a class="news" href="/guides/paper-vs-realms-vs-vps.html"><div class="pic"><img src="/img/hero.jpg" alt="Overworld terrain"></div><div class="txt"><h3>Realms, a panel, or a VPS</h3><div class="meta"><span>Compare</span>No affiliate links</div><p>Which host fits a growing Paper world, and which cheap plan is just a noisy neighbor.</p><span class="more">Compare hosts &#8599;</span></div></a>
@@ -314,6 +397,188 @@ Prioritize strong single-core performance over a high advertised core count. Min
   <footer><p><a href="/guides/">Server guides</a> · <a href="/guide.html">Game guide</a> · <a href="/about.html">About</a> · <a href="/editorial-policy.html">Editorial policy</a> · <a href="/privacy.html">Privacy</a> · <a href="/terms.html">Terms</a> · <a href="/contact.html">Contact</a> · <a href="https://github.com/matthewcodergamer/MinecraftWeb">Source on GitHub</a></p><p>Minecraft Web is an unofficial fan project. It is not affiliated with, endorsed by or associated with Mojang Studios or Microsoft. Minecraft is a trademark of Mojang Studios. Server guides name hosting companies for identification only. They are not affiliate links.</p></footer>
 </main>
 </div>
+
+
+<div class="gate" id="gate" role="dialog" aria-modal="true" aria-labelledby="gate-title">
+  <div class="gate-box">
+    <div class="gate-kicker">ADVERTISEMENT</div>
+    <div class="gate-title" id="gate-title">Watch to unlock the game</div>
+    <div class="gate-ad" id="gate-ad" aria-label="Advertisement"><span>Loading ad&#8230;</span></div>
+    <div class="gate-count"><span id="gate-n">15</span>s</div>
+    <div class="gate-sub" id="gate-sub">Preparing Minecraft&#8230; you only have to download this once.</div>
+    <div class="gate-prog"><i id="gate-fill"></i></div>
+    <div class="gate-bytes" id="gate-bytes">0 / 0 MB</div>
+  </div>
+</div>
+<div class="load" id="load" aria-live="polite">
+  <div class="load-win"><div class="load-text">LOADING<i id="load-dots">...</i></div></div>
+</div>
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var playBtn = $('play'), playState = $('play-state'), dl = $('dl'), dlLabel = $('dl-label'),
+      dlFill = $('dl-fill'), dlPct = $('dl-pct'), dlBytes = $('dl-bytes');
+  var gate = $('gate'), gateN = $('gate-n'), gateSub = $('gate-sub'), gateFill = $('gate-fill'),
+      gateBytes = $('gate-bytes'), gateAd = $('gate-ad');
+  var load = $('load'), loadDots = $('load-dots');
+  var MANIFEST = '/MinecraftWeb/clientmain.parts.json';
+  var CACHE = 'mw-game-v1';
+  var total = 0, done = 0, downloading = null, dlDone = false;
+  var gateLeft = 15, gateTimer = null, gateDone = false, launching = false;
+  var fmt = function (n) { return (n / 1e6).toFixed(1); };
+  var pass = function (u) { return new URL(u, location.href).href; };
+
+  function setState(text, kind) {
+    if (text) { playBtn.setAttribute('data-state', kind || '1'); playState.textContent = text; }
+    else { playBtn.removeAttribute('data-state'); playState.textContent = ''; }
+  }
+  function showProgress(bytes) {
+    done = Math.max(0, Math.min(bytes, total || bytes));
+    var pct = total ? Math.min(100, Math.round(done / total * 100)) : 0;
+    dl.classList.add('on');
+    dlFill.style.width = pct + '%'; dlPct.textContent = pct + '%';
+    dlBytes.textContent = fmt(done) + ' / ' + fmt(total) + ' MB';
+    gateFill.style.width = pct + '%';
+    gateBytes.textContent = fmt(done) + ' / ' + fmt(total) + ' MB';
+  }
+  async function readCached(cache, url, size) {
+    if (!cache) return null;
+    try {
+      var r = await cache.match(pass(url));
+      if (!r) return null;
+      var b = await r.arrayBuffer();
+      if (!size || b.byteLength === size) return b;
+    } catch (e) {}
+    return null;
+  }
+  async function fetchPart(url, size, onBytes) {
+    var r = await fetch(pass(url), { cache: 'no-store' });
+    if (!r.ok) throw new Error('HTTP ' + r.status + ' for ' + url);
+    var reader = r.body.getReader(), chunks = [], got = 0;
+    for (;;) {
+      var step = await reader.read();
+      if (step.done) break;
+      chunks.push(step.value); got += step.value.length;
+      onBytes(got);
+    }
+    var blob = new Blob(chunks, { type: 'application/octet-stream' });
+    try {
+      var c = await caches.open(CACHE);
+      await c.put(pass(url), new Response(blob, {
+        headers: { 'content-type': 'application/octet-stream', 'content-length': String(blob.size) }
+      }));
+    } catch (e) {}
+    if (size && blob.size !== size) throw new Error('Size mismatch for ' + url);
+    return blob;
+  }
+  async function ensureDownload() {
+    if (downloading) return downloading;
+    downloading = (async function () {
+      showProgress(0);
+      var r = await fetch(MANIFEST, { cache: 'no-cache' });
+      if (!r.ok) throw new Error('Could not read the game manifest');
+      var man = await r.json();
+      var parts = (man.parts || []).map(function (p) { return typeof p === 'string' ? { name: p } : p; });
+      total = man.downloadTotal || parts.reduce(function (n, p) { return n + (p.size || 0); }, 0);
+      showProgress(0);
+      var cache = null;
+      try { cache = await caches.open(CACHE); } catch (e) {}
+      var base = 0;
+      for (var i = 0; i < parts.length; i++) {
+        var p = parts[i], size = p.size || 0, url = '/MinecraftWeb/' + p.name;
+        if (await readCached(cache, url, size)) {
+          base += size; showProgress(base); continue;
+        }
+        if (cache) { try { await cache.delete(pass(url)); } catch (e) {} }
+        var start = base;
+        await fetchPart(url, size, function (got) { showProgress(start + got); });
+        base += size; showProgress(base);
+      }
+      dlDone = true;
+      setState('WAITING ON INSTALL\u2026', 'waiting');
+      if (!gateDone) gateSub.textContent = 'Waiting on install\u2026';
+      showProgress(total);
+      await new Promise(function (r) { setTimeout(r, 600); });
+      return true;
+    })();
+    downloading.catch(function (e) {
+      downloading = null;
+      dlDone = false;
+      console.warn(e);
+      setState('RETRY', 'retry');
+      dlLabel.textContent = 'DOWNLOAD FAILED';
+      gateSub.textContent = 'Download failed: ' + e.message + ' \u2014 press RETRY.';
+    });
+    return downloading;
+  }
+  function fillGateAd() {
+    if (!gateAd) return;
+    var slots = window.SITE_AD_SLOTS || {};
+    if (slots.wait && window.mwFillAd) { window.mwFillAd(gateAd, 'wait'); return; }
+    if (!gateAd.querySelector('.gate-house')) {
+      gateAd.innerHTML = '<div class="gate-house"><img src="/assets/ui/minecraft.png" alt="Minecraft"><span>Advertisement</span></div>';
+    }
+  }
+  function maybeLaunch() {
+    if (launching || !gateDone || !dlDone) return;
+    launching = true;
+    gate.classList.remove('on');
+    load.classList.add('on');
+    var n = 0, dots = setInterval(function () { n = (n + 1) % 4; loadDots.textContent = '...'.slice(0, n); }, 220);
+    try { sessionStorage.setItem('mw_play_pass', String(Date.now())); } catch (e) {}
+    setTimeout(function () {
+      clearInterval(dots);
+      location.href = '/MinecraftWeb/game.html?play=1';
+    }, 1700);
+  }
+  function startGate() {
+    gate.classList.add('on');
+    gateLeft = 15; gateDone = false; gateN.textContent = '15';
+    gateSub.textContent = 'Preparing Minecraft\u2026 you only have to download this once.';
+    fillGateAd();
+    if (gateTimer) clearInterval(gateTimer);
+    gateTimer = setInterval(function () {
+      gateLeft--;
+      gateN.textContent = String(Math.max(0, gateLeft));
+      if (gateLeft <= 0) {
+        clearInterval(gateTimer); gateTimer = null;
+        gateDone = true;
+        gateSub.textContent = dlDone ? 'Starting Minecraft\u2026' : 'Waiting on install\u2026';
+        maybeLaunch();
+      }
+    }, 1000);
+  }
+  function start() {
+    if (launching) return;
+    setState('PREPARING\u2026', 'preparing');
+    dlLabel.textContent = 'PREPARING\u2026';
+    startGate();
+    ensureDownload().then(function () {
+      if (gateDone) gateSub.textContent = 'Starting Minecraft\u2026';
+      maybeLaunch();
+    });
+  }
+  playBtn.addEventListener('click', function () {
+    if (playBtn.getAttribute('data-state') === 'retry') { setState('PREPARING\u2026', 'preparing'); }
+    start();
+  });
+  var qp = $('qp');
+  if (qp) qp.addEventListener('click', start);
+  var copy = $('copy-user');
+  if (copy) copy.addEventListener('click', function () {
+    try { navigator.clipboard.writeText('NekinMe'); } catch (e) {}
+    var old = copy.textContent; copy.textContent = '\u2713';
+    setTimeout(function () { copy.textContent = old; }, 1200);
+  });
+  var block = $('block-btn'); if (block) block.addEventListener('click', function () { location.href = '/guide.html'; });
+  var dots = $('dots'); if (dots) dots.addEventListener('click', function () { location.href = '/guide.html#about'; });
+  if (/[?&]from=game/.test(location.search)) {
+    var ready = document.querySelector('.ready');
+    if (ready) ready.textContent = 'Launch Minecraft from this page. Press PLAY.';
+  }
+})();
+</script>
 
 </body>
 </html>
