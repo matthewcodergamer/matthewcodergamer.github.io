@@ -13,10 +13,42 @@
     s.setAttribute('data-ad-frequency-hint','30s');document.head.appendChild(s);
   }
   window.adsbygoogle=window.adsbygoogle||[];
-  if(typeof window.adBreak!=='function'){window.adBreak=window.adConfig=function(o){window.adsbygoogle.push(o)}}
-  try{adConfig({preloadAdBreaks:'on',sound:'on',onReady:function(){window.__h5Ready=true}})}catch(e){}
-  /* Arriving on the site: a full-screen "preroll" ad first (H5 Games Ads), once per visit */
-  try{if(!sessionStorage.getItem('mw_preroll')){sessionStorage.setItem('mw_preroll','1');adBreak({type:'preroll',adBreakDone:function(){}})}}catch(e){}
+
+  /* Wait for the real Ad Placement API. Never stub adBreak/adConfig: a stub
+     makes the launcher report "ad finished" when nothing ever played. The
+     promise resolves false when the account/browser cannot serve an ad break,
+     so the launcher can show its banner fallback instead. */
+  window.__adReady=new Promise(function(resolve){
+    var settled=false, configured=false;
+    function settle(ok){if(settled)return;settled=true;window.__h5Ready=!!ok;resolve(!!ok)}
+    function arm(){
+      if(configured)return true;
+      if(typeof window.adConfig!=='function'||typeof window.adBreak!=='function')return false;
+      configured=true;
+      try{
+        window.adConfig({preloadAdBreaks:'on',sound:'on',onReady:function(){settle(true)}});
+      }catch(e){settle(false)}
+      return true;
+    }
+    var script=document.querySelector('script[src*="adsbygoogle.js"]');
+    if(script){
+      if(script.dataset.adLoaded)arm();
+      script.addEventListener('load',function(){script.dataset.adLoaded='1';arm()});
+    }
+    var tries=0;
+    var iv=setInterval(function(){
+      arm();
+      if(settled){clearInterval(iv);return}
+      if(++tries>24){clearInterval(iv);settle(false)}
+    },250);
+  });
+
+  /* Arriving on the site: a full-screen "preroll" ad first (H5 Games Ads),
+     once per visit. Google decides whether to fill it. */
+  window.__adReady.then(function(ok){
+    if(!ok)return;
+    try{if(!sessionStorage.getItem('mw_preroll')){sessionStorage.setItem('mw_preroll','1');adBreak({type:'preroll',adBreakDone:function(){}})}}catch(e){}
+  });
   var WAIT=0; /* the launcher owns the 5 s ad gate; do not add a second countdown */
 
   var gate=null;

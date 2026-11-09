@@ -444,7 +444,17 @@ Prioritize strong single-core performance over a high advertised core count. Min
     gateFill.style.width = pct + '%';
     gateBytes.textContent = fmt(done) + ' / ' + fmt(total) + ' MB';
   }
-  async function fetchPart(remoteUrl, localUrl, size, onBytes) {
+  function toHex(buf) {
+    var a = new Uint8Array(buf), s = '';
+    for (var i = 0; i < a.length; i++) s += ('0' + a[i].toString(16)).slice(-2);
+    return s;
+  }
+  async function sha256Hex(blob) {
+    if (!window.crypto || !crypto.subtle || !crypto.subtle.digest) return '';
+    return toHex(await crypto.subtle.digest('SHA-256', await blob.arrayBuffer()));
+  }
+  async function fetchPart(remoteUrl, localUrl, size, expectedSha, onBytes) {
+    var startedAt = performance.now();
     var r = await fetch(pass(remoteUrl), { cache: 'no-store' });
     if (!r.ok) throw new Error('HTTP ' + r.status + ' for ' + remoteUrl);
     var declared = Number(r.headers.get('content-length')) || size || 0;
@@ -454,11 +464,19 @@ Prioritize strong single-core performance over a high advertised core count. Min
       var step = await reader.read();
       if (step.done) break;
       chunks.push(step.value); got += step.value.length;
-      onBytes(got, declared);
+      onBytes(got, declared, got / Math.max(0.001, (performance.now() - startedAt) / 1000));
     }
     var blob = new Blob(chunks, { type: 'application/octet-stream' });
     if (size && blob.size !== size) {
       throw new Error('Size mismatch for ' + remoteUrl + ': got ' + blob.size + ', expected ' + size);
+    }
+    /* The manifest hash is the proof this is the real file from Hugging Face,
+       not a cached or truncated response. */
+    if (expectedSha) {
+      var actual = await sha256Hex(blob);
+      if (actual && actual !== expectedSha) {
+        throw new Error('SHA-256 mismatch for ' + remoteUrl);
+      }
     }
     try {
       var c = await caches.open(CACHE);
@@ -500,24 +518,27 @@ Prioritize strong single-core performance over a high advertised core count. Min
       showProgress(0);
       var base = 0;
       for (var i = 0; i < parts.length; i++) {
-        var p = parts[i], size = p.size || 0, name = p.name || p.file;
+        var p = parts[i], size = p.size || 0, name = p.name || p.file, sha = p.sha256 || '';
         var remote = HF_BASE + name, local = LOCAL_BASE + name;
         dlLabel.textContent = 'DOWNLOADING ' + name.toUpperCase();
         var start = base, blob;
+        var onBytes = function (got, declared, bps) {
+          showProgress(start + got);
+          dlLabel.textContent = 'DOWNLOADING ' + name.toUpperCase() + ' \u00b7 ' + (bps / 1e6).toFixed(1) + ' MB/s';
+        };
         try {
-          blob = await fetchPart(remote, local, size, function (got) { showProgress(start + got); });
+          blob = await fetchPart(remote, local, size, sha, onBytes);
         } catch (err) {
           console.warn('Hugging Face part failed; retrying same-origin', name, err);
-          blob = await fetchPart(local, local, size, function (got) { showProgress(start + got); });
+          blob = await fetchPart(local, local, size, sha, onBytes);
         }
         base += blob.size;
         showProgress(base);
       }
       dlDone = true;
-      dlLabel.textContent = 'DOWNLOAD COMPLETE';
+      dlLabel.textContent = 'DOWNLOAD COMPLETE \u00b7 SHA-256 VERIFIED';
       setState('INSTALLING\u2026', 'waiting');
       showProgress(total);
-      await new Promise(function (r) { setTimeout(r, 400); });
       return true;
     })();
     downloading.catch(function (e) {
@@ -569,28 +590,69 @@ Prioritize strong single-core performance over a high advertised core count. Min
     gateSub.textContent = 'Advertisement finished. Downloading\u2026';
     beginDownload();
   }
-  function requestAd() {
+  /* The countdown is a floor, not a replacement for the ad: it only starts when
+     an ad actually begins (beforeAd) or when the banner fallback is shown, and
+     the gate cannot open until both the countdown and the ad break are done. */
+  var gateCountdownStart = 0;
+  function startCountdown() {
+    if (gateTimer) return;
+    gateCountdownStart = performance.now();
+    gateLeft = GATE_SECONDS;
+    gateN.textContent = String(gateLeft);
+    gateTimer = setInterval(function () {
+      var elapsed = (performance.now() - gateCountdownStart) / 1000;
+      gateLeft = Math.max(0, Math.ceil(GATE_SECONDS - elapsed));
+      gateN.textContent = String(gateLeft);
+      if (gateLeft <= 0) {
+        clearInterval(gateTimer); gateTimer = null;
+        gateCountdownDone = true;
+        checkGateDone();
+      }
+    }, 200);
+  }
+  function requestAd(onStart) {
     return new Promise(function (resolve) {
-      var settled = false, started = false;
-      var finish = function (real) { if (settled) return; settled = true; resolve(!!real); };
-      if (typeof window.adBreak !== 'function' || !window.__h5Ready) { finish(false); return; }
-      try {
-        window.adBreak({
-          type: 'start',
-          name: 'play_button',
-          beforeAd: function () { started = true; gateSub.textContent = 'Advertisement playing\u2026'; },
-          adBreakDone: function (info) {
-            var viewed = started || (info && (info.breakStatus === 'viewed' || info.breakStatus === 'dismissed'));
-            finish(viewed);
-          }
-        });
-      } catch (e) { finish(false); return; }
-      setTimeout(function () { finish(started); }, 9000);
+      var settled = false, started = false, safety = null;
+      var finish = function (real) {
+        if (settled) return;
+        settled = true;
+        if (safety) clearTimeout(safety);
+        resolve({ real: !!real, started: started });
+      };
+      var arm = function () {
+        if (typeof window.adBreak !== 'function' || !window.__h5Ready) { finish(false); return; }
+        try {
+          window.adBreak({
+            type: 'start',
+            name: 'play_button',
+            beforeAd: function () {
+              started = true;
+              if (onStart) onStart();
+              gateSub.textContent = 'Advertisement playing\u2026';
+            },
+            afterAd: function () { gateSub.textContent = 'Advertisement finished. Preparing Minecraft\u2026'; },
+            adBreakDone: function (info) {
+              var viewed = started || (info && (info.breakStatus === 'viewed' || info.breakStatus === 'dismissed'));
+              finish(viewed);
+            }
+          });
+          safety = setTimeout(function () { finish(started); }, 20000);
+        } catch (e) { finish(false); }
+      };
+      if (window.__h5Ready && typeof window.adBreak === 'function') {
+        /* Keep the ad call inside the click gesture. */
+        arm();
+      } else if (window.__adReady && typeof window.__adReady.then === 'function') {
+        window.__adReady.then(function (ok) { if (ok) arm(); else finish(false); });
+      } else {
+        setTimeout(arm, 600);
+      }
     });
   }
   function startGate() {
     gate.classList.add('on');
     gateLeft = GATE_SECONDS; gateCountdownDone = false; adSettled = false; gateDone = false;
+    if (gateTimer) { clearInterval(gateTimer); gateTimer = null; }
     gateN.textContent = String(GATE_SECONDS);
     gateSub.textContent = 'Loading advertisement\u2026';
     fillGateAd();
@@ -598,19 +660,16 @@ Prioritize strong single-core performance over a high advertised core count. Min
       total = manifestTotal(man);
       if (total && !dlDone) showProgress(0);
     }).catch(function () {});
-    if (gateTimer) clearInterval(gateTimer);
-    gateTimer = setInterval(function () {
-      gateLeft--;
-      gateN.textContent = String(Math.max(0, gateLeft));
-      if (gateLeft <= 0) {
-        clearInterval(gateTimer); gateTimer = null;
-        gateCountdownDone = true;
-        checkGateDone();
-      }
-    }, 1000);
-    requestAd().then(function (real) {
+    requestAd(startCountdown).then(function (res) {
       adSettled = true;
-      if (!real) gateSub.textContent = 'Advertisement unavailable \u2014 continuing\u2026';
+      if (!res.real) {
+        /* No video filled. The gate holds a labelled banner unit for the same
+           5 seconds; site-ads.js requests a real AdSense unit when a slot id
+           is configured, otherwise the house creative stays up. */
+        fillGateAd();
+        gateSub.textContent = 'Video ad unavailable \u2014 banner shown for 5 seconds\u2026';
+      }
+      startCountdown();
       checkGateDone();
     });
   }
