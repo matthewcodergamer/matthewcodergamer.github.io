@@ -5,22 +5,41 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
 <link rel="canonical" href="https://matthewcodergamer-minecraft-browser.static.hf.space/">
-<meta http-equiv="refresh" content="0;url=https://matthewcodergamer-minecraft-browser.static.hf.space/?v=26.3-20261125b">
+<meta http-equiv="refresh" content="2;url=https://matthewcodergamer-minecraft-browser.static.hf.space/?v=26.3-20261125b">
 <title>Minecraft Java Edition v26.3</title>
 <style>
   html, body { height: 100%; margin: 0; background: #000; color: #fff; }
   body { display: grid; place-items: center; font: 16px/1.5 system-ui, sans-serif; }
   a { color: #8ecbff; }
+  #bmc {
+    position: fixed;
+    top: max(10px, env(safe-area-inset-top));
+    right: max(10px, env(safe-area-inset-right));
+    width: 46px;
+    height: 46px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: #ffdd00;
+    border: 2px solid rgba(0, 0, 0, .35);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, .45);
+    transition: transform .15s ease, filter .15s ease;
+  }
+  #bmc:hover { transform: translateY(-2px) scale(1.04); filter: brightness(1.05); }
+  #bmc img { width: 22px; height: 31px; display: block; }
 </style>
 <script>
   // GitHub Pages hosts no game files. The canonical client, its WebAssembly
-  // module and its resource archive live on the Hugging Face Space, so send
-  // every visitor to that single up-to-date build instead of serving a stale
-  // HTML imitation here.
-  location.replace('https://matthewcodergamer-minecraft-browser.static.hf.space/?v=26.3-20261125b');
+  // module and its resource archive live on the Hugging Face Space. Give the
+  // coffee badge a moment to be seen, then hand off to the live build.
+  setTimeout(function () {
+    location.replace('https://matthewcodergamer-minecraft-browser.static.hf.space/?v=26.3-20261125b');
+  }, 1800);
 </script>
 </head>
 <body>
+  <a id="bmc" href="https://buymeacoffee.com/gamerstripd" target="_blank" rel="noopener"
+     aria-label="Buy me a coffee" title="Buy me a coffee"><img src="bmc.svg" alt=""></a>
   <p>Opening Minecraft Java&hellip; <a href="https://matthewcodergamer-minecraft-browser.static.hf.space/?v=26.3-20261125b">Continue</a></p>
 </body>
 </html>
