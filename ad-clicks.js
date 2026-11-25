@@ -1,95 +1,59 @@
-/* Ads on every click: each link on the site is a page change, which is where Google may show a
-   full-screen ad.
-   - AdSense Auto ads "Vignette" (turn it on in AdSense): shown by Google between pages; links simply
-     navigate normally while H5 Games Ads is not active.
-   - H5 Games Ads (Ad Placement API, once approved): every click first asks for an ad break, "start"
-     before the game and "browse" for the other pages, then continues when the break is done.
-   Google decides whether an ad is ready and how often; a player is never stuck (4 s fallback). */
-(function(){
-  var CLIENT='ca-pub-5025566183652379';
-  if(!document.querySelector('script[src*="adsbygoogle.js"]')){
-    var s=document.createElement('script');s.async=true;s.crossOrigin='anonymous';
-    s.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client='+CLIENT;
-    s.setAttribute('data-ad-frequency-hint','30s');document.head.appendChild(s);
+/* Google H5 Games Ads diagnostics.
+ *
+ * The actual queue stubs and the adConfig() preload call live in the inline
+ * script immediately after the AdSense tag in index.html, so they are queued
+ * before the async AdSense script loads (the order Google's H5 snippet uses).
+ *
+ * The Ad Placement API is not a normal global that AdSense defines for you:
+ * adBreak()/adConfig() are queue stubs that push onto window.adsbygoogle.
+ * Waiting for "real" functions was why the Play gate never requested a video.
+ * The launcher calls adBreak() itself inside the PLAY click.
+ */
+(function () {
+  window.adsbygoogle = window.adsbygoogle || [];
+
+  function queue(placement) {
+    window.adsbygoogle.push(placement);
   }
-  window.adsbygoogle=window.adsbygoogle||[];
+  if (typeof window.adConfig !== 'function') window.adConfig = queue;
+  if (typeof window.adBreak !== 'function') window.adBreak = queue;
 
-  /* Wait for the real Ad Placement API. Never stub adBreak/adConfig: a stub
-     makes the launcher report "ad finished" when nothing ever played. The
-     promise resolves false when the account/browser cannot serve an ad break,
-     so the launcher can show its banner fallback instead. */
-  window.__adReady=new Promise(function(resolve){
-    var settled=false, configured=false;
-    function settle(ok){if(settled)return;settled=true;window.__h5Ready=!!ok;resolve(!!ok)}
-    function arm(){
-      if(configured)return true;
-      if(typeof window.adConfig!=='function'||typeof window.adBreak!=='function')return false;
-      configured=true;
-      try{
-        window.adConfig({preloadAdBreaks:'on',sound:'on',onReady:function(){settle(true)}});
-      }catch(e){settle(false)}
-      return true;
+  window.__adDiag = window.__adDiag || {
+    config: window.__h5Ready ? 'ready' : (window.__h5Configured ? 'queued' : 'missing'),
+    ready: !!window.__h5Ready,
+    lastBreak: null,
+    updated: Date.now()
+  };
+
+  if (!window.__h5Configured) {
+    try {
+      window.adConfig({
+        preloadAdBreaks: 'on',
+        sound: 'on',
+        onReady: function () {
+          window.__h5Ready = true;
+          window.__adDiag.config = 'ready';
+          window.__adDiag.ready = true;
+          window.__adDiag.updated = Date.now();
+          console.info('[H5_ADS] Ad Placement API ready');
+        }
+      });
+      window.__h5Configured = true;
+    } catch (e) {
+      window.__adDiag.config = 'error: ' + (e && e.message || e);
+      window.__adDiag.updated = Date.now();
+      console.warn('[H5_ADS] adConfig failed', e);
     }
-    var script=document.querySelector('script[src*="adsbygoogle.js"]');
-    if(script){
-      if(script.dataset.adLoaded)arm();
-      script.addEventListener('load',function(){script.dataset.adLoaded='1';arm()});
-    }
-    var tries=0;
-    var iv=setInterval(function(){
-      arm();
-      if(settled){clearInterval(iv);return}
-      if(++tries>24){clearInterval(iv);settle(false)}
-    },250);
-  });
-
-  /* Arriving on the site: a full-screen "preroll" ad first (H5 Games Ads),
-     once per visit. Google decides whether to fill it. */
-  window.__adReady.then(function(ok){
-    if(!ok)return;
-    try{if(!sessionStorage.getItem('mw_preroll')){sessionStorage.setItem('mw_preroll','1');adBreak({type:'preroll',adBreakDone:function(){}})}}catch(e){}
-  });
-  var WAIT=0; /* the launcher owns the 5 s ad gate; do not add a second countdown */
-
-  var gate=null;
-  function overlay(){
-    if(gate)return gate;
-    var st=document.createElement('style');st.textContent=
-      '#adGate{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:rgba(10,10,10,.92);color:#fff;font-family:system-ui,sans-serif}'+
-      '#adGate .b{display:grid;gap:12px;justify-items:center;text-align:center;padding:28px;border:3px solid #000;background:#3c3c3c url(/MinecraftWeb/assets/java/26.1/blocks/dirt.png);background-size:64px;image-rendering:pixelated;box-shadow:inset 0 0 0 2px #6b6b6b;max-width:90vw}'+
-      '#adGate b{font-size:22px;text-shadow:2px 2px #3f3f3f}#adGate span{color:#d0d0d0;font-size:14px}'+
-      '#adGate i{width:42px;height:42px;border:6px solid #555;border-top-color:#7fcf3f;animation:agS 1s steps(8) infinite}@keyframes agS{to{transform:rotate(360deg)}}';
-    document.head.appendChild(st);
-    gate=document.createElement('div');gate.id='adGate';
-    gate.innerHTML='<div class="b"><i></i><b>Loading Minecraft Java…</b><span>A short ad keeps the game free</span><span id="agT"></span></div>';
-    return gate;
   }
-  document.addEventListener('click',function(e){
-    if(e.defaultPrevented||e.button!==0||e.ctrlKey||e.metaKey||e.shiftKey||e.altKey)return;
-    var a=e.target.closest&&e.target.closest('a[href]');if(!a||a.target==='_blank'||a.hasAttribute('download'))return;
-    if(a.hasAttribute('data-adpass'))return;
-    var u;try{u=new URL(a.href,location.href)}catch(x){return}
-    if(u.origin!==location.origin)return;
-    if(u.pathname===location.pathname&&u.search===location.search&&u.hash)return; /* same-page anchor */
-    var game=/^\/MinecraftWeb\/(game\.html)?$/.test(u.pathname);
-    if(!game&&!window.__h5Ready)return;                                        /* website pages: vignette handles it */
-    e.preventDefault();
-    var done=false,showing=false,waited=!game,adDone=false;
-    function go(){if(done||!waited||!adDone)return;done=true;
-      /* the game only opens with a fresh PLAY pass (checked by MinecraftWeb/game.html) */
-      if(game){try{sessionStorage.setItem('mw_play_pass',String(Date.now()))}catch(x){}}
-      /* leave through a real link so AdSense's vignette (full-screen ad between pages) can still show */
-      if(!window.__h5Ready){var l=document.createElement('a');l.href=u.href;l.setAttribute('data-adpass','1');l.style.display='none';document.body.appendChild(l);l.click();setTimeout(function(){location.href=u.href},2500)}
-      else location.href=u.href}
-    if(game){
-      document.body.appendChild(overlay());var t=WAIT,el=document.getElementById('agT');
-      /* banner on the loading screen when a slot id is set in site-ads.js (SITE_AD_SLOTS.wait) */
-      try{var slot=window.SITE_AD_SLOTS&&SITE_AD_SLOTS.wait;if(slot&&!document.getElementById('agAd')){var d=document.createElement('div');d.id='agAd';d.style.cssText='width:min(336px,80vw);min-height:250px;margin-top:6px';d.innerHTML='<ins class="adsbygoogle" style="display:block;width:100%;min-height:250px" data-ad-client="'+CLIENT+'" data-ad-slot="'+slot+'" data-ad-format="rectangle"></ins>';gate.querySelector('.b').appendChild(d);(window.adsbygoogle=window.adsbygoogle||[]).push({})}}catch(x){}
-      (function tick(){if(el)el.textContent=t>0?'Starting in '+t+'…':'Starting…';if(t--<=0){waited=true;go();return}setTimeout(tick,1000)})();
+
+  /* onReady is not guaranteed on accounts where H5 Games Ads is not enabled.
+     Do not block anything on it; adBreak() will return noAdPreloaded/notReady
+     and the launcher falls back to its five-second sponsor gate. */
+  setTimeout(function () {
+    if (!window.__h5Ready) {
+      window.__adDiag.config = 'no-onReady';
+      window.__adDiag.updated = Date.now();
+      console.info('[H5_ADS] API did not report ready; Play will still request a rewarded break');
     }
-    if(window.__h5Ready){
-      try{adBreak({type:game?'start':'browse',name:game?'play_button':'site_link',beforeAd:function(){showing=true},adBreakDone:function(){adDone=true;setTimeout(go,120)}})}catch(x){adDone=true;go()}
-      setTimeout(function(){if(!showing){adDone=true;go()}},game?WAIT*1000+1500:1500);
-    }else{adDone=true;go()}
-  },false);
+  }, 6000);
 })();
