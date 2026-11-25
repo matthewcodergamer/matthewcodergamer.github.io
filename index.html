@@ -57,10 +57,10 @@ main{flex:1;min-width:0;display:flex;flex-direction:column}
 /* ---- Buy Me a Coffee icon in the launcher header ---- */
 .top-right{display:flex;align-items:center;gap:12px;margin-bottom:22px}
 .top-right .qp{margin-bottom:0}
-.bmc{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:#ffdd00;border:2px solid #000;box-shadow:inset 0 2px #ffe95c,0 2px 6px rgba(0,0,0,.4);text-decoration:none;flex:none;transition:transform .15s ease,filter .15s ease}
-.bmc img{width:20px;height:29px;display:block}
+.bmc{display:grid;place-items:center;width:40px;height:40px;border-radius:9px;background:#8b5e3c;border:2px solid #000;box-shadow:inset 0 2px #a9714b,0 2px 6px rgba(0,0,0,.4);text-decoration:none;flex:none;transition:transform .15s ease,filter .15s ease}
+.bmc img{width:26px;height:26px;display:block}
 .bmc:hover{filter:brightness(1.06);transform:translateY(-1px)}
-@media(max-width:960px){.top-right{margin-bottom:0}.bmc{width:36px;height:36px}.bmc img{width:18px;height:26px}}
+@media(max-width:960px){.top-right{margin-bottom:0}.bmc{width:34px;height:34px}.bmc img{width:22px;height:22px}}
 /* ---- key art ---- */
 .hero{position:relative;flex:none;height:clamp(300px,calc(100vh - 455px),720px);background:#000 url('/img/launcher-art.jpg?v=11') center top/cover no-repeat}
 .logo{position:absolute;left:50%;top:14px;transform:translateX(-50%);width:clamp(220px,20vw,320px);filter:drop-shadow(0 3px 4px rgba(0,0,0,.45))}
@@ -168,6 +168,13 @@ footer{background:var(--feed);color:#a9a9a9;font-size:12px;text-align:center;pad
 .gate-prog{width:min(420px,92%);height:9px;background:#222;border:1px solid #000;box-shadow:inset 0 0 0 1px #333;padding:1px;margin:12px auto 0}
 .gate-prog i{display:block;height:100%;width:0;background:linear-gradient(180deg,#b6ff7a,#6cd13a 55%,#4a9e2f);transition:width .18s linear}
 .gate-bytes{font-size:12px;color:#a9a9a9;margin-top:6px}
+.gate-retry{display:inline-block;margin-top:12px;padding:8px 18px;background:#6f6f6f;color:#fff;border:2px solid #000;box-shadow:inset 0 2px #9a9a9a,inset 0 -3px #3f3f3f;font:700 13px/1 'Minecraft Seven',system-ui,sans-serif;letter-spacing:.04em;cursor:pointer}
+.gate-retry:hover{background:#7d7d7d}
+.gate-retry[hidden]{display:none}
+/* ---- preloaded game iframe (hidden behind the rewarded gate) ---- */
+#game-frame{position:fixed;inset:0;width:100%;height:100%;border:0;z-index:9998;background:#000;opacity:0;pointer-events:none;transition:opacity .3s ease}
+body.game-on{overflow:hidden}
+body.game-on #game-frame{opacity:1;pointer-events:auto;z-index:10002}
 /* ---- 1:1 loading screen ---- */
 .load{position:fixed;inset:0;z-index:10001;display:none;place-items:center;background:#000}
 .load.on{display:grid}
@@ -417,12 +424,15 @@ Prioritize strong single-core performance over a high advertised core count. Min
     <div class="gate-kicker">ADVERTISEMENT</div>
     <div class="gate-title" id="gate-title">Watch to unlock the game</div>
     <div class="gate-ad" id="gate-ad" aria-label="Advertisement"><span>Loading ad&#8230;</span></div>
-    <div class="gate-count"><span id="gate-n">5</span>s</div>
-    <div class="gate-sub" id="gate-sub">Preparing Minecraft&#8230; you only have to download this once.</div>
+    <div class="gate-count"><span id="gate-n">5</span><span id="gate-unit">s</span></div>
+    <div class="gate-sub" id="gate-sub">The browser client downloads while the ad plays. The game opens when it is ready.</div>
     <div class="gate-prog"><i id="gate-fill"></i></div>
-    <div class="gate-bytes" id="gate-bytes">0 / 0 MB</div>
+    <div class="gate-bytes" id="gate-bytes">0% of browser client</div>
+    <button class="gate-retry" id="gate-retry" type="button" hidden>RETRY</button>
   </div>
 </div>
+<iframe id="game-frame" title="Minecraft Java Edition"
+  allow="fullscreen; autoplay; gamepad; clipboard-write; pointer-lock" allowfullscreen></iframe>
 <div class="load" id="load" aria-live="polite">
   <div class="load-win"><div class="load-text">LOADING<i id="load-dots">...</i></div></div>
 </div>
@@ -432,16 +442,19 @@ Prioritize strong single-core performance over a high advertised core count. Min
   var $ = function (id) { return document.getElementById(id); };
   var playBtn = $('play'), playState = $('play-state'), dl = $('dl'), dlLabel = $('dl-label'),
       dlFill = $('dl-fill'), dlPct = $('dl-pct'), dlBytes = $('dl-bytes');
-  var gate = $('gate'), gateN = $('gate-n'), gateSub = $('gate-sub'), gateFill = $('gate-fill'),
-      gateBytes = $('gate-bytes'), gateAd = $('gate-ad');
+  var gate = $('gate'), gateN = $('gate-n'), gateUnit = $('gate-unit'), gateSub = $('gate-sub'),
+      gateFill = $('gate-fill'), gateBytes = $('gate-bytes'), gateAd = $('gate-ad'), gateRetry = $('gate-retry');
   var load = $('load'), loadDots = $('load-dots');
+  var gameFrame = $('game-frame');
   var HF_BASE = 'https://huggingface.co/spaces/matthewcodergamer/minecraft-browser/resolve/main/';
   var LOCAL_BASE = '/MinecraftWeb/';
-  var HF_PLAY = 'https://matthewcodergamer-minecraft-browser.static.hf.space/?v=26.3-20261125b';
+  var HF_ORIGIN = 'https://matthewcodergamer-minecraft-browser.static.hf.space';
+  var HF_PLAY = HF_ORIGIN + '/?v=26.3-20261125c&host=pages';
   var CACHE = 'mw-game-v1';
   var GATE_SECONDS = 5;
   var total = 0, done = 0, downloading = null, dlDone = false;
   var gateLeft = GATE_SECONDS, gateTimer = null, gateCountdownDone = false, adSettled = false, gateDone = false, launching = false;
+  var gameStarted = false, gameReady = false, gameFailed = false, preloadTimer = null;
   var fmt = function (n) { return (n / 1e6).toFixed(1); };
   var pass = function (u) { return new URL(u, location.href).href; };
 
@@ -586,21 +599,102 @@ Prioritize strong single-core performance over a high advertised core count. Min
       gateAd.innerHTML = '<div class="gate-house"><img src="/assets/ui/minecraft.png" alt="Minecraft"><span>Advertisement</span></div>';
     }
   }
+  function setPreloadProgress(value) {
+    var pct = Math.max(0, Math.min(100, Math.round((Number(value) || 0) * 100)));
+    gateFill.style.width = pct + '%';
+    gateBytes.textContent = pct + '% of browser client';
+  }
+  function clearPreloadTimer() {
+    if (preloadTimer) { clearTimeout(preloadTimer); preloadTimer = null; }
+  }
+  /* Start the real Java client behind the rewarded ad. The iframe is laid out
+     at full size (opacity 0, below the gate) so Java gets a real canvas; it is
+     never display:none, which would give the client a 0x0 framebuffer. */
+  function startPreload() {
+    if (gameStarted || !gameFrame) return;
+    gameStarted = true;
+    gameReady = false;
+    gameFailed = false;
+    gateRetry.hidden = true;
+    setPreloadProgress(0);
+    gateUnit.textContent = 's';
+    gateSub.textContent = 'Starting the browser client while the ad plays\u2026';
+    gameFrame.src = HF_PLAY;
+    clearPreloadTimer();
+    /* A first visit downloads the WebAssembly client and its assets. Give a
+       slow connection time, but never leave the gate up with no explanation. */
+    preloadTimer = setTimeout(function () {
+      if (gameReady || gameFailed) return;
+      gameFailed = true;
+      gateSub.textContent = 'The browser client did not finish starting. Press RETRY.';
+      gateRetry.hidden = false;
+      setState('RETRY', 'retry');
+    }, 10 * 60 * 1000);
+  }
+  function restartPreload() {
+    clearPreloadTimer();
+    gameStarted = false;
+    gameReady = false;
+    gameFailed = false;
+    try { gameFrame.src = 'about:blank'; } catch (e) {}
+    setTimeout(startPreload, 80);
+  }
   function maybeLaunch() {
-    if (launching || !gateDone || !dlDone) return;
+    if (launching || !gateDone || !gameReady) return;
     launching = true;
+    clearPreloadTimer();
     gate.classList.remove('on');
+    if (load) load.classList.remove('on');
+    document.body.classList.add('game-on');
+    try { gameFrame.focus(); } catch (e) {}
     try { sessionStorage.setItem('mw_play_pass', String(Date.now())); } catch (e) {}
-    /* Go straight to the real Java client. No second fake loading screen. */
-    location.href = HF_PLAY;
+    setState('PLAYING', '1');
   }
   function checkGateDone() {
     if (gateDone || !gateCountdownDone || !adSettled) return;
     gateDone = true;
-    dlDone = true;
-    gateSub.textContent = 'Advertisement finished. Opening Minecraft\u2026';
+    gateSub.textContent = gameReady
+      ? 'Advertisement finished. Opening Minecraft\u2026'
+      : 'Advertisement finished. Finishing browser setup\u2026';
     maybeLaunch();
   }
+  /* game.html runs on the Hugging Face origin. It cannot be inspected across
+     the origin boundary, so it publishes stage/progress/ready/error messages. */
+  window.addEventListener('message', function (event) {
+    if (event.origin !== HF_ORIGIN) return;
+    var data = event.data;
+    if (!data || data.source !== 'mc-game') return;
+    if (data.type === 'ready') {
+      gameReady = true;
+      gameFailed = false;
+      clearPreloadTimer();
+      gateRetry.hidden = true;
+      setPreloadProgress(1);
+      gateBytes.textContent = 'READY';
+      gateSub.textContent = 'Minecraft is ready.';
+      if (gateCountdownDone) { gateN.textContent = '\u2713'; gateUnit.textContent = ''; }
+      checkGateDone();
+    } else if (data.type === 'stage') {
+      if (data.text) gateSub.textContent = String(data.text);
+      if (typeof data.progress === 'number') setPreloadProgress(data.progress);
+    } else if (data.type === 'progress') {
+      setPreloadProgress((Number(data.value) || 0) / 100);
+      if (data.stage) gateSub.textContent = 'Starting Minecraft: ' + String(data.stage).replace(/-/g, ' ');
+    } else if (data.type === 'error') {
+      gameFailed = true;
+      gameReady = false;
+      clearPreloadTimer();
+      gateSub.textContent = 'Minecraft failed to start: ' + String(data.message || 'unknown error');
+      gateRetry.hidden = false;
+      setState('RETRY', 'retry');
+    }
+  });
+  gateRetry.addEventListener('click', function () {
+    gateRetry.hidden = true;
+    setState('PREPARING\u2026', 'preparing');
+    gateSub.textContent = 'Restarting the browser client\u2026';
+    restartPreload();
+  });
   /* The countdown is a floor, not a replacement for the ad: it only starts when
      an ad actually begins (beforeAd) or when the banner fallback is shown, and
      the gate cannot open until both the countdown and the ad break are done. */
@@ -617,6 +711,8 @@ Prioritize strong single-core performance over a high advertised core count. Min
       if (gateLeft <= 0) {
         clearInterval(gateTimer); gateTimer = null;
         gateCountdownDone = true;
+        gateN.textContent = gameReady ? '\u2713' : '\u2026';
+        gateUnit.textContent = '';
         checkGateDone();
       }
     }, 200);
@@ -662,11 +758,16 @@ Prioritize strong single-core performance over a high advertised core count. Min
   }
   function startGate() {
     gate.classList.add('on');
+    gateRetry.hidden = true;
     gateLeft = GATE_SECONDS; gateCountdownDone = false; adSettled = false; gateDone = false;
     if (gateTimer) { clearInterval(gateTimer); gateTimer = null; }
     gateN.textContent = String(GATE_SECONDS);
-    gateSub.textContent = 'Loading advertisement\u2026';
+    gateUnit.textContent = 's';
     fillGateAd();
+    /* Start the download/setup on the same click that opens the ad. The gate
+       stays up until the ad has settled AND the client has presented a frame. */
+    startPreload();
+    gateSub.textContent = 'Loading advertisement\u2026 the browser client is starting behind it.';
     requestAd(startCountdown).then(function (res) {
       adSettled = true;
       if (!res.real) {
@@ -682,8 +783,17 @@ Prioritize strong single-core performance over a high advertised core count. Min
   }
   function start() {
     if (launching) return;
+    /* A second click while the gate is open must not restart the ad or the
+       iframe. The RETRY button is the explicit recovery path. */
+    if (gate.classList.contains('on')) return;
     setState('PREPARING\u2026', 'preparing');
-    if (gateDone) { dlDone = true; maybeLaunch(); return; }
+    if (gateDone && gameReady) { maybeLaunch(); return; }
+    if (gateDone && !gameReady) {
+      gate.classList.add('on');
+      gateSub.textContent = 'Finishing browser setup\u2026';
+      if (!gameStarted || gameFailed) restartPreload();
+      return;
+    }
     dlLabel.textContent = 'PREPARING\u2026';
     startGate();
   }
