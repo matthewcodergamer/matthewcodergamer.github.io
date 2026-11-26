@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ad Placement API test</title>
+<script async
+        data-ad-frequency-hint="30s"
+        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5025566183652379"
+        crossorigin="anonymous"></script>
+<script>
+  window.adsbygoogle = window.adsbygoogle || [];
+  window.adBreak = window.adConfig = function (o) { window.adsbygoogle.push(o); };
+  window.__log = [];
+  function log(name, data) {
+    var line = name + (data === undefined ? '' : ' ' + JSON.stringify(data));
+    window.__log.push(line);
+    console.log('[ADTEST] ' + line);
+    var el = document.getElementById('log');
+    if (el) el.textContent = window.__log.join('\n');
+  }
+  window.__ready = false;
+  window.adConfig({
+    preloadAdBreaks: 'on',
+    sound: 'on',
+    onReady: function () {
+      window.__ready = true;
+      log('onReady');
+      var b = document.getElementById('go');
+      if (b) b.disabled = false;
+    }
+  });
+  window.__adBreak = function () {
+    log('adBreak requested');
+    window.adBreak({
+      type: 'reward',
+      name: 'test-reward',
+      beforeReward: function (showAdFn) {
+        log('beforeReward');
+        showAdFn();
+      },
+      adViewed: function () { log('adViewed'); },
+      adDismissed: function () { log('adDismissed'); },
+      adBreakDone: function (info) { log('adBreakDone', info); }
+    });
+  };
+  window.addEventListener('DOMContentLoaded', function () {
+    document.getElementById('go').addEventListener('click', window.__adBreak);
+    setTimeout(function () {
+      if (window.__ready) window.__adBreak();
+    }, 2500);
+  });
+</script>
+<style>
+  html,body{margin:0;height:100%;background:#111;color:#eee;font:14px/1.5 system-ui,sans-serif}
+  canvas{position:fixed;inset:0;width:100%;height:100%;background:#234}
+  .ui{position:relative;z-index:2;padding:20px;max-width:560px}
+  button{font:inherit;padding:12px 20px;margin:12px 0;cursor:pointer}
+  pre{white-space:pre-wrap;background:#000;padding:10px;min-height:120px}
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+<div class="ui">
+  <h1>Ad Placement API test</h1>
+  <p>Exact Google example structure. Ready: <b id="ready">no</b></p>
+  <button id="go" disabled>Show rewarded ad</button>
+  <pre id="log"></pre>
+</div>
+<script>
+  var c = document.getElementById('game');
+  var g = c.getContext('2d');
+  function draw(t) { g.fillStyle = '#234'; g.fillRect(0, 0, c.width, c.height); g.fillStyle = '#8f8'; g.fillRect((t / 20) % c.width, 20, 40, 40); requestAnimationFrame(draw); }
+  draw(0);
+</script>
+</body>
+</html>
