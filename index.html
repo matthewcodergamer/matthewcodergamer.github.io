@@ -656,7 +656,7 @@ Prioritize strong single-core performance over a high advertised core count. Min
       maybeLaunch();
     });
   }
-  var houseAdDone = false;
+  var houseAdDone = false, houseAdTimer = null;
   function showHouseAd(done) {
     if (!gateAd) return;
     if (!gateAd.querySelector('.gate-house')) {
@@ -814,6 +814,7 @@ Prioritize strong single-core performance over a high advertised core count. Min
     if (launching || !gateDone || !gameReady) return;
     launching = true;
     clearPreloadTimer();
+    if (houseAdTimer) { clearTimeout(houseAdTimer); houseAdTimer = null; }
     stopGateTicker();
     gateWatch.hidden = true;
     gateSponsor.hidden = true;
@@ -1079,15 +1080,15 @@ Prioritize strong single-core performance over a high advertised core count. Min
     gate.classList.add('on');
     gateRetry.hidden = true;
     gateWatch.hidden = true;
-    /* The sponsor video is the guaranteed ad. Show its CTA from the first
-       frame so the gate never looks like a dead countdown while the rewarded
-       request is in flight. */
-    gateSponsor.hidden = false;
+    /* The sponsor card is the guaranteed ad, but its CONTINUE button stays
+       hidden until the five-second sponsor video has actually played. */
+    gateSponsor.hidden = true;
     gateShowAd = null;
     gateSkipAd = null;
     gateStartReward = null;
     gateLeft = GATE_SECONDS; gateCountdownDone = false; adSettled = false; gateDone = false;
     if (gateTimer) { clearInterval(gateTimer); gateTimer = null; }
+    if (houseAdTimer) { clearTimeout(houseAdTimer); houseAdTimer = null; }
     bootStartedAt = performance.now();
     stageText = 'Starting the browser client while the ad plays\u2026';
     stageAt = performance.now();
@@ -1101,6 +1102,13 @@ Prioritize strong single-core performance over a high advertised core count. Min
     if (gateAd) gateAd.innerHTML = '';
     setPreloadProgress(0);
     fillGateAd();
+    /* The house sponsor is a real five-second ad, not just a static card.
+       Mark it complete only after it has actually played; a real rewarded
+       video marks it complete when its adViewed callback fires. */
+    houseAdTimer = setTimeout(function () {
+      houseAdDone = true;
+      if (gate.classList.contains('on')) showHouseAd(true);
+    }, 5000);
     /* Start the download/setup on the same click that requests the ad. The
        gate stays up until the ad has settled, the countdown has finished and
        the client has presented its first Java frame. */
@@ -1110,7 +1118,7 @@ Prioritize strong single-core performance over a high advertised core count. Min
     requestAd(function () { startCountdown(); }).then(function (res) {
       adSettled = true;
       adStatus = res.status || 'done';
-      houseAdDone = true;
+      if (res.viewed) houseAdDone = true;
       if (window.__adDiag) {
         window.__adDiag.lastBreak = adStatus;
         window.__adDiag.updated = Date.now();
