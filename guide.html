@@ -43,6 +43,22 @@ footer{text-align:center;color:var(--muted);font-size:14px;margin:30px 0}
 <script src="/install.js" defer></script>
 <script src="/site-ads.js" defer></script>
 <script src="/ad-clicks.js" defer></script>
+
+<!-- Google Reader Revenue Manager -->
+<script async type="application/javascript"
+        src="https://news.google.com/swg/js/v1/swg-basic.js"></script>
+<script>
+  (self.SWG_BASIC = self.SWG_BASIC || []).push( basicSubscriptions => {
+    basicSubscriptions.init({
+      type: "NewsArticle",
+      isPartOfType: ["Product"],
+      isPartOfProductId: "CAowuenODA:openaccess",
+      clientOptions: { theme: "light", lang: "en" },
+    });
+  });
+</script>
+<!-- Google Publisher Tag: required by Reader Revenue Manager rewarded ad wall -->
+<script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
 </head>
 <body>
 <div class="wrap"><main>
