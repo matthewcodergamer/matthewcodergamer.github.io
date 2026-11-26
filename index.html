@@ -89,7 +89,15 @@ main{flex:1;min-width:0;display:flex;flex-direction:column}
 .bmc{display:grid;place-items:center;width:40px;height:40px;border-radius:9px;background:#8b5e3c;border:2px solid #000;box-shadow:inset 0 2px #a9714b,0 2px 6px rgba(0,0,0,.4);text-decoration:none;flex:none;transition:transform .15s ease,filter .15s ease}
 .bmc img{width:26px;height:26px;display:block}
 .bmc:hover{filter:brightness(1.06);transform:translateY(-1px)}
-@media(max-width:960px){.top-right{margin-bottom:0}.bmc{width:34px;height:34px}.bmc img{width:22px;height:22px}}
+@media(max-width:960px){
+  /* The header stacks the title above a scrollable tab strip on phones. Keep
+     the coffee link pinned to the real top-right corner instead of letting it
+     float in the middle of that strip, and reserve room so tabs never scroll
+     underneath it. */
+  .top{position:relative;padding-right:58px}
+  .top-right{position:absolute;top:8px;right:12px;margin:0;z-index:5}
+  .bmc{width:34px;height:34px}.bmc img{width:22px;height:22px}
+}
 /* ---- key art ---- */
 .hero{position:relative;flex:none;height:clamp(300px,calc(100vh - 455px),720px);background:#000 url('/img/launcher-art.jpg?v=11') center top/cover no-repeat}
 .logo{position:absolute;left:50%;top:14px;transform:translateX(-50%);width:clamp(220px,20vw,320px);filter:drop-shadow(0 3px 4px rgba(0,0,0,.45))}
@@ -99,7 +107,10 @@ main{flex:1;min-width:0;display:flex;flex-direction:column}
 .ready{display:none;position:absolute;right:12px;bottom:12px;max-width:290px;padding:8px 34px 8px 12px;background:#1ed760;background:#3dda6c;color:#000;font:12px/1.35 'Minecraft Seven',system-ui,sans-serif;border:1px solid #000;text-align:center}
 html.fromGame .ready{display:block}
 /* ---- play bar ---- */
-.bar{position:relative;flex:none;height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 14px 0 12px;background:var(--bg)}
+/* The bar overlaps the hero by 13px. Without its own stacking level the
+   hero's dark bottom gradient paints over the top of the Play button and makes
+   it look like a two-tone green strip. */
+.bar{position:relative;z-index:3;flex:none;height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 14px 0 12px;background:var(--bg)}
 .inst{display:flex;align-items:center;gap:10px;color:#fff;text-decoration:none;min-width:0}
 .inst img{width:28px;height:28px;image-rendering:pixelated}
 .inst b{display:block;font-size:13px;font-weight:700;line-height:1.25}.inst span{font-size:11px;color:var(--muted)}
@@ -112,6 +123,11 @@ html.fromGame .ready{display:block}
   font-family:'Minecraft Seven',system-ui,sans-serif;font-size:22px;letter-spacing:.08em;-webkit-text-stroke:1.1px #fff;text-shadow:2px 2px 0 rgba(0,0,0,.3)}
 .play:hover span{background:linear-gradient(#00a352,#009448)}
 .play:active span{box-shadow:inset 0 3px 0 var(--g-dk),inset 3px 0 0 var(--g-edge),inset -3px 0 0 var(--g-edge);padding-top:3px}
+/* The site accent is teal-green; the Play control uses the launcher's grass
+   green so the most important button does not look a shade off. */
+.play span{background:linear-gradient(#4a9e2f,#3c8527);box-shadow:inset 0 3px 0 #62b744,inset 3px 0 0 #245c14,inset -3px 0 0 #245c14,inset 0 -4px 0 #1a4210}
+.play:hover span{background:linear-gradient(#55ad38,#43902b)}
+.play:active span{box-shadow:inset 0 3px 0 #1a4210,inset 3px 0 0 #245c14,inset -3px 0 0 #245c14;padding-top:3px}
 /* ---- news feed ---- */
 .feed{background:var(--feed);flex:1;padding:30px 20px 10px}
 .feedin{max-width:800px;margin:0 auto;display:grid;gap:28px}
@@ -137,7 +153,7 @@ footer{background:var(--feed);color:#a9a9a9;font-size:12px;text-align:center;pad
   .mnav{display:flex;gap:0;overflow-x:auto;background:var(--bg);border-bottom:1px solid var(--line);scrollbar-width:none}
   .mnav a{flex:none;display:flex;align-items:center;gap:8px;color:#fff;text-decoration:none;font-size:13px;font-weight:600;padding:10px 14px;border-right:1px solid var(--line)}
   .mnav a img{width:20px;height:20px;image-rendering:pixelated}.mnav a.on{background:#2b2b2b;box-shadow:inset 0 -3px #fff}
-  .top{height:auto;padding:12px 14px 0}.top>div{min-width:0;flex:1}.tabs{gap:22px;overflow-x:auto;max-width:100%;scrollbar-width:none;-webkit-overflow-scrolling:touch}.tabs a{font-size:15px}.qp{display:none}
+  .top{height:auto;padding:12px 58px 0 14px}.top>div{min-width:0;flex:1}.tabs{gap:22px;overflow-x:auto;max-width:100%;scrollbar-width:none;-webkit-overflow-scrolling:touch}.tabs a{font-size:15px}.qp{display:none}
   .hero{height:56vw;min-height:220px;max-height:60vh}
   .bar{height:auto;padding:52px 12px 12px}.play{top:-14px;width:min(235px,64vw)}
   .feed{padding:20px 10px}.news{grid-template-columns:1fr}.news .pic{min-height:0;aspect-ratio:16/9}.news h3{font-size:19px}
@@ -190,20 +206,30 @@ footer{background:var(--feed);color:#a9a9a9;font-size:12px;text-align:center;pad
 .gate-kicker{font-size:10px;letter-spacing:.22em;color:#9a9a9a}
 .gate-title{font-family:'Minecraft Seven',system-ui,sans-serif;font-size:23px;line-height:1.2;margin-top:6px}
 .gate-ad{min-height:250px;width:min(336px,92%);margin:14px auto 6px;display:grid;place-items:center;background:#0b0b0b;border:1px dashed #333;color:#8b8b8b;font-size:12px;overflow:hidden}
-.gate-house{display:grid;justify-items:center;gap:6px;padding:14px}
-.gate-house img{width:150px;image-rendering:pixelated;opacity:.55}
+.gate-house{position:relative;display:grid;justify-items:center;gap:7px;padding:14px 14px 22px;overflow:hidden}
+.gate-house-tag{font:700 9px/1 'Minecraft Seven',system-ui,sans-serif;letter-spacing:.18em;color:#9a9a9a;background:#1b1b1b;border:1px solid #333;padding:4px 7px}
+.gate-house-play{width:0;height:0;border-left:16px solid #7fcf3f;border-top:10px solid transparent;border-bottom:10px solid transparent;filter:drop-shadow(2px 2px 0 #000)}
+.gate-house img{width:150px;image-rendering:pixelated;opacity:.72}
+.gate-house strong{font-family:'Minecraft Seven',system-ui,sans-serif;font-weight:normal;font-size:15px;color:#e8e8e8;letter-spacing:.03em}
+.gate-house-copy{font-size:11px;color:#9a9a9a;max-width:250px;text-align:center;line-height:1.45}
+.gate-house-status{font:700 10px/1.2 'Minecraft Seven',system-ui,sans-serif;letter-spacing:.05em;color:#8fbf6f}
+.gate-house[data-state="done"] .gate-house-status{color:#b6ff7a}
+.gate-house-timer{position:absolute;left:0;bottom:0;height:3px;width:0;background:#7fcf3f;animation:houseAd 5s linear forwards}
+.gate-house[data-state="done"] .gate-house-timer{width:100%;animation:none}
+@keyframes houseAd{from{width:0}to{width:100%}}
 .gate-count{font-family:'Minecraft Seven',system-ui,sans-serif;font-size:34px;color:#7fcf3f;line-height:1.1;margin-top:2px}
 .gate-sub{font-size:13px;color:#b9b9b9;margin-top:4px}
 .gate-prog{width:min(420px,92%);height:9px;background:#222;border:1px solid #000;box-shadow:inset 0 0 0 1px #333;padding:1px;margin:12px auto 0;overflow:hidden}
 .gate-prog i{display:block;position:relative;height:100%;width:0;min-width:6px;background:linear-gradient(180deg,#b6ff7a,#6cd13a 55%,#4a9e2f);transition:width .18s linear;overflow:hidden}
-.gate-prog i:after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);transform:translateX(-110%);animation:gateShine 1.35s linear infinite}
-@keyframes gateShine{to{transform:translateX(110%)}}
 .gate-bytes{font-size:12px;color:#a9a9a9;margin-top:6px}
 .gate-live{font-size:12px;color:#8fbf6f;margin-top:3px;min-height:16px;line-height:1.35}
 .gate-live.warn{color:#e0b060}
 .gate-watch{display:inline-block;margin-top:10px;padding:11px 24px;background:#2f7d1f;color:#fff;border:2px solid #000;box-shadow:inset 0 2px #55b53a,inset 0 -3px #1d5412;font:700 14px/1 'Minecraft Seven',system-ui,sans-serif;letter-spacing:.04em;cursor:pointer}
 .gate-watch:hover{background:#389623}
 .gate-watch[hidden]{display:none}
+.gate-sponsor{display:inline-block;margin-top:8px;padding:8px 16px;background:#3b3b3b;color:#d8d8d8;border:2px solid #000;box-shadow:inset 0 2px #626262,inset 0 -3px #242424;font:700 12px/1 'Minecraft Seven',system-ui,sans-serif;letter-spacing:.04em;cursor:pointer}
+.gate-sponsor:hover{background:#4a4a4a;color:#fff}
+.gate-sponsor[hidden]{display:none}
 .gate-retry{display:inline-block;margin-top:12px;padding:8px 18px;background:#6f6f6f;color:#fff;border:2px solid #000;box-shadow:inset 0 2px #9a9a9a,inset 0 -3px #3f3f3f;font:700 13px/1 'Minecraft Seven',system-ui,sans-serif;letter-spacing:.04em;cursor:pointer}
 .gate-retry:hover{background:#7d7d7d}
 .gate-retry[hidden]{display:none}
@@ -465,7 +491,8 @@ Prioritize strong single-core performance over a high advertised core count. Min
     <div class="gate-prog"><i id="gate-fill"></i></div>
     <div class="gate-bytes" id="gate-bytes">0% of browser client</div>
     <div class="gate-live" id="gate-live">Starting the browser client…</div>
-    <button class="gate-watch" id="gate-watch" type="button" hidden>WATCH VIDEO TO PLAY</button>
+    <div><button class="gate-watch" id="gate-watch" type="button" hidden>WATCH VIDEO TO PLAY</button></div>
+    <button class="gate-sponsor" id="gate-sponsor" type="button" hidden>CONTINUE WITH SPONSOR</button>
     <button class="gate-retry" id="gate-retry" type="button" hidden>RETRY</button>
   </div>
 </div>
@@ -482,7 +509,7 @@ Prioritize strong single-core performance over a high advertised core count. Min
       dlFill = $('dl-fill'), dlPct = $('dl-pct'), dlBytes = $('dl-bytes');
   var gate = $('gate'), gateN = $('gate-n'), gateUnit = $('gate-unit'), gateSub = $('gate-sub'),
       gateFill = $('gate-fill'), gateBytes = $('gate-bytes'), gateAd = $('gate-ad'), gateRetry = $('gate-retry'),
-      gateLive = $('gate-live'), gateWatch = $('gate-watch');
+      gateLive = $('gate-live'), gateWatch = $('gate-watch'), gateSponsor = $('gate-sponsor');
   var load = $('load'), loadDots = $('load-dots');
   var gameFrame = $('game-frame');
   var HF_BASE = 'https://huggingface.co/spaces/matthewcodergamer/minecraft-browser/resolve/main/';
@@ -496,7 +523,7 @@ Prioritize strong single-core performance over a high advertised core count. Min
   var gameStarted = false, gameReady = false, gameFailed = false, preloadTimer = null;
   var bootStartedAt = 0, stageText = 'Starting the browser client\u2026', stageAt = 0;
   var gateLiveTimer = null, adStatus = 'idle', lastAdDetail = '';
-  var gateShowAd = null;
+  var gateShowAd = null, gateSkipAd = null, gateStartReward = null;
   var fmt = function (n) { return (n / 1e6).toFixed(1); };
   var pass = function (u) { return new URL(u, location.href).href; };
 
@@ -629,17 +656,51 @@ Prioritize strong single-core performance over a high advertised core count. Min
       maybeLaunch();
     });
   }
+  var houseAdDone = false;
+  function showHouseAd(done) {
+    if (!gateAd) return;
+    if (!gateAd.querySelector('.gate-house')) {
+      gateAd.innerHTML = '<div class="gate-house" data-state="playing">'
+        + '<span class="gate-house-tag">SPONSOR VIDEO</span>'
+        + '<span class="gate-house-play" aria-hidden="true"></span>'
+        + '<strong>Minecraft Web</strong>'
+        + '<span class="gate-house-copy">This short sponsor message keeps the Java client free to play.</span>'
+        + '<span class="gate-house-status">Playing sponsor video \u00b7 5s</span>'
+        + '<i class="gate-house-timer" aria-hidden="true"></i></div>';
+    }
+    var house = gateAd.querySelector('.gate-house');
+    if (!house) return;
+    house.setAttribute('data-state', done ? 'done' : 'playing');
+    var status = house.querySelector('.gate-house-status');
+    if (status) {
+      status.textContent = done
+        ? 'Sponsor video complete \u00b7 reward unlocked'
+        : 'Playing sponsor video \u00b7 5s';
+    }
+    houseAdDone = !!done;
+  }
   function fillGateAd() {
     if (!gateAd) return;
     var slots = window.SITE_AD_SLOTS || {};
+    /* Quick way to test a real AdSense display unit without editing files:
+       https://matthewcodergamer.github.io/?adslot=1234567890 */
+    try {
+      var adSlot = new URLSearchParams(location.search).get('adslot');
+      if (adSlot) slots.wait = adSlot;
+    } catch (e) {}
     if (slots.wait && window.mwFillAd) {
       gateAd.innerHTML = '';
       window.mwFillAd(gateAd, 'wait');
       return;
     }
-    if (!gateAd.querySelector('.gate-house') && !gateAd.querySelector('ins')) {
-      gateAd.innerHTML = '<div class="gate-house"><img src="/assets/ui/minecraft.png" alt="Minecraft"><span>Advertisement</span></div>';
-    }
+    /* A display unit can still come back unfilled. The house sponsor video is
+       the guaranteed fallback, so every Play always has an ad in the gate. */
+    showHouseAd(houseAdDone);
+    setTimeout(function () {
+      if (!gateAd) return;
+      var ins = gateAd.querySelector('ins');
+      if (ins && !ins.querySelector('iframe')) showHouseAd(houseAdDone);
+    }, 5000);
   }
   function setPreloadProgress(value, detail) {
     var pct = Math.max(0, Math.min(100, Math.round((Number(value) || 0) * 100)));
@@ -675,7 +736,13 @@ Prioritize strong single-core performance over a high advertised core count. Min
         text = 'Stopped after ' + clockText(elapsed) + '. Press RETRY to restart.';
         gateLive.className = 'gate-live warn';
       } else if (adStatus === 'requesting') {
-        text = 'Asking Google for a rewarded video\u2026 ' + clockText(elapsed);
+        text = 'Checking for a rewarded video\u2026 ' + clockText(elapsed);
+        gateLive.className = 'gate-live';
+      } else if (adStatus === 'available') {
+        text = 'Rewarded video ready \u2014 tap WATCH VIDEO TO PLAY.';
+        gateLive.className = 'gate-live';
+      } else if (adStatus === 'starting') {
+        text = 'Starting the rewarded video\u2026';
         gateLive.className = 'gate-live';
       } else if (adStatus === 'playing') {
         text = 'Rewarded video playing\u2026 ' + clockText(elapsed) + ' elapsed. The client is loading behind it.';
@@ -683,14 +750,25 @@ Prioritize strong single-core performance over a high advertised core count. Min
       } else if (adStatus === 'viewed') {
         text = 'Video complete \u2014 waiting for the browser client (' + clockText(elapsed) + ').';
         gateLive.className = 'gate-live';
+      } else if (adStatus === 'skipped' || adStatus === 'dismissed' || adStatus === 'no-ad'
+          || adStatus === 'unavailable' || adStatus === 'timeout'
+          || adStatus === 'show-blocked' || adStatus === 'show-error') {
+        text = 'Sponsor video playing \u00b7 ' + clockText(elapsed) + ' elapsed. The Java client is still loading.';
+        gateLive.className = 'gate-live';
       } else if (quiet > 2.5) {
-        text = 'Still working \u2014 ' + clockText(elapsed) + ' elapsed. The browser is compiling and loading, not frozen.';
+        text = 'Still working \u2014 ' + clockText(elapsed) + ' elapsed. Downloading, caching and compiling WebAssembly; this is not frozen.';
         gateLive.className = 'gate-live';
       } else {
         text = 'Live \u00b7 ' + clockText(elapsed) + ' elapsed';
         gateLive.className = 'gate-live';
       }
       if (gateLive.textContent !== text) gateLive.textContent = text;
+      /* After the sponsor countdown, give the player an explicit way past a
+         video that never starts. The gate never becomes a trap. */
+      if (gateCountdownDone && !adSettled && adStatus !== 'playing'
+          && adStatus !== 'starting' && adStatus !== 'viewed' && !gameFailed) {
+        gateSponsor.hidden = false;
+      }
     }, 500);
   }
   function stopGateTicker() {
@@ -737,6 +815,8 @@ Prioritize strong single-core performance over a high advertised core count. Min
     launching = true;
     clearPreloadTimer();
     stopGateTicker();
+    gateWatch.hidden = true;
+    gateSponsor.hidden = true;
     gateSub.textContent = 'Minecraft is ready. Opening the game\u2026';
     gateLive.textContent = 'Launching the real Java client\u2026';
     gate.classList.remove('on');
@@ -788,6 +868,8 @@ Prioritize strong single-core performance over a high advertised core count. Min
       gameReady = false;
       clearPreloadTimer();
       stopGateTicker();
+      gateWatch.hidden = true;
+      gateSponsor.hidden = true;
       setStage('Minecraft failed to start: ' + String(data.message || 'unknown error'));
       gateLive.className = 'gate-live warn';
       gateLive.textContent = 'Stopped. Press RETRY to start the browser client again.';
@@ -796,17 +878,25 @@ Prioritize strong single-core performance over a high advertised core count. Min
     }
   });
   gateWatch.addEventListener('click', function () {
-    if (typeof gateShowAd !== 'function') return;
-    gateWatch.hidden = true;
-    gateLive.textContent = 'Starting the rewarded video\u2026';
-    try { gateShowAd(); }
-    catch (e) {
+    if (typeof gateStartReward !== 'function' || !gateStartReward()) {
       gateLive.className = 'gate-live warn';
-      gateLive.textContent = 'The video could not start. Continuing with the sponsor banner.';
+      gateLive.textContent = 'The video could not start. Continuing with the sponsor message.';
+      if (typeof gateSkipAd === 'function') gateSkipAd('show-error');
     }
+  });
+  gateSponsor.addEventListener('click', function () {
+    if (typeof gateSkipAd !== 'function') return;
+    gateSponsor.hidden = true;
+    gateWatch.hidden = true;
+    setStage('Continuing with the sponsor message while the client finishes\u2026');
+    gateLive.className = 'gate-live';
+    gateLive.textContent = 'Sponsor message shown. Unlocking the game as soon as the client is ready.';
+    gateSkipAd('skipped');
   });
   gateRetry.addEventListener('click', function () {
     gateRetry.hidden = true;
+    gateWatch.hidden = true;
+    gateSponsor.hidden = true;
     setState('PREPARING\u2026', 'preparing');
     bootStartedAt = performance.now();
     gameFailed = false;
@@ -846,17 +936,19 @@ Prioritize strong single-core performance over a high advertised core count. Min
     return new Promise(function (resolve) {
       var settled = false, started = false, viewed = false, dismissed = false;
       var beforeRewardSeen = false, cancelled = false;
-      var noAdTimer = null, hardTimer = null, showTimer = null, watchTimer = null;
+      var noAdTimer = null, hardTimer = null, showTimer = null;
       var finish = function (status) {
         if (settled) return;
         settled = true;
         cancelled = true;
         gateShowAd = null;
+        gateSkipAd = null;
+        gateStartReward = null;
         gateWatch.hidden = true;
+        gateSponsor.hidden = true;
         if (noAdTimer) clearTimeout(noAdTimer);
         if (hardTimer) clearTimeout(hardTimer);
         if (showTimer) clearTimeout(showTimer);
-        if (watchTimer) clearTimeout(watchTimer);
         resolve({
           real: viewed || started,
           started: started,
@@ -865,15 +957,39 @@ Prioritize strong single-core performance over a high advertised core count. Min
           status: status || 'done'
         });
       };
+      gateSkipAd = function (reason) { finish(reason || 'skipped'); };
+      /* Owner QA: ?h5=off forces the guaranteed sponsor-video path without
+         waiting for the Ad Placement API. Normal players still request the
+         rewarded break on every Play. */
+      if (/[?&](h5=off|adtest=sponsor)/.test(location.search)) {
+        finish('unavailable');
+        return;
+      }
       if (typeof window.adBreak !== 'function') {
         finish('unavailable');
         return;
       }
+      if (window.__adDiag) {
+        window.__adDiag.lastBreak = 'requested';
+        window.__adDiag.updated = Date.now();
+      }
+      /* The Ad Placement API only calls beforeReward when a rewarded creative
+         is genuinely available. The player taps our WATCH VIDEO button, so the
+         ad starts from a fresh user gesture and the reward is opt-in. */
+      var startReward = function () {
+        if (settled || typeof gateShowAd !== 'function') return false;
+        gateWatch.hidden = true;
+        gateSponsor.hidden = true;
+        adStatus = 'starting';
+        gateLive.className = 'gate-live';
+        gateLive.textContent = 'Starting the rewarded video\u2026';
+        try { gateShowAd(); }
+        catch (e) { finish('show-error'); return false; }
+        if (showTimer) clearTimeout(showTimer);
+        showTimer = setTimeout(function () { if (!started) finish('show-blocked'); }, 12000);
+        return true;
+      };
       try {
-        /* This is the official Ad Placement API flow: the call stays inside
-           the PLAY click, and the queue stub pushes it to AdSense. A rewarded
-           placement gives the player a real video unlock instead of a silent
-           interstitial. */
         window.adBreak({
           type: 'reward',
           name: 'play_button_reward',
@@ -881,43 +997,57 @@ Prioritize strong single-core performance over a high advertised core count. Min
             beforeRewardSeen = true;
             if (cancelled) return;
             gateShowAd = showAdFn;
+            gateStartReward = startReward;
             adStatus = 'available';
-            gateLive.textContent = 'Rewarded video found \u2014 starting it now\u2026';
-            try { showAdFn(); }
-            catch (e) { finish('show-error'); return; }
-            /* Some browsers only allow the video after a fresh tap. Keep the
-               same showAdFn behind a visible button instead of failing open. */
-            watchTimer = setTimeout(function () {
-              if (!started && !settled && typeof gateShowAd === 'function') {
-                gateWatch.hidden = false;
-                gateLive.textContent = 'Tap WATCH VIDEO to start the rewarded ad.';
-              }
-            }, 1200);
-            /* showAdFn() should lead straight to beforeAd. If the ad overlay
-               is blocked (popup/autoplay policy), fail open after 15 s. */
-            showTimer = setTimeout(function () {
-              if (!started) finish('show-blocked');
-            }, 15000);
+            gateWatch.hidden = false;
+            gateSponsor.hidden = false;
+            if (window.__adDiag) {
+              window.__adDiag.lastBreak = 'available';
+              window.__adDiag.updated = Date.now();
+            }
+            setStage('A rewarded video is ready. Watch it for the reward, or continue with the sponsor video.');
+            gateLive.className = 'gate-live';
+            gateLive.textContent = 'Rewarded video ready \u2014 tap WATCH VIDEO TO PLAY.';
           },
           beforeAd: function () {
             started = true;
             adStatus = 'playing';
             gateWatch.hidden = true;
+            gateSponsor.hidden = true;
+            if (window.__adDiag) {
+              window.__adDiag.lastBreak = 'playing';
+              window.__adDiag.updated = Date.now();
+            }
             if (onStart) onStart();
             setStage('Rewarded video playing\u2026 the Java client keeps loading behind it.');
             gateLive.className = 'gate-live';
             gateLive.textContent = 'Video ad playing. The browser client is still loading.';
+            if (hardTimer) clearTimeout(hardTimer);
+            /* An ad that never reports completion must not strand the game. */
+            hardTimer = setTimeout(function () { finish('timeout'); }, 60000);
           },
           adViewed: function () {
             viewed = true;
             adStatus = 'viewed';
+            if (window.__adDiag) {
+              window.__adDiag.lastBreak = 'viewed';
+              window.__adDiag.updated = Date.now();
+            }
             setStage('Video complete. Thank you for supporting Minecraft Web.');
             gateLive.textContent = 'Reward unlocked. Waiting for the client to finish.';
+            if (hardTimer) clearTimeout(hardTimer);
+            hardTimer = setTimeout(function () { finish('viewed'); }, 15000);
           },
           adDismissed: function () {
             dismissed = true;
             adStatus = 'dismissed';
-            gateLive.textContent = 'Video closed early. Continuing with the sponsor banner.';
+            if (window.__adDiag) {
+              window.__adDiag.lastBreak = 'dismissed';
+              window.__adDiag.updated = Date.now();
+            }
+            setStage('Video closed early. The sponsor video covers the rest of the countdown.');
+            gateLive.textContent = 'Video closed early. Continuing with the sponsor video.';
+            finish('dismissed');
           },
           afterAd: function () {
             if (!viewed && !dismissed) setStage('Advertisement finished. Preparing Minecraft\u2026');
@@ -933,19 +1063,29 @@ Prioritize strong single-core performance over a high advertised core count. Min
         finish('error');
         return;
       }
-      /* If no rewarded creative is available, do not leave the gate waiting.
-         The banner fallback plus the five-second floor still gate the game. */
+      /* adBreak() normally calls beforeReward synchronously when a creative is
+         ready. If it has not appeared by now, no rewarded video is available;
+         the sponsor video is the ad for this Play, and the gate must not wait
+         forever for a callback that will never arrive. */
       noAdTimer = setTimeout(function () {
         if (!beforeRewardSeen && !started) finish('no-ad');
-      }, 5000);
-      hardTimer = setTimeout(function () { finish(started ? 'timeout' : 'no-ad'); }, 180000);
+      }, 2500);
+      /* If a rewarded video is offered but the player never taps it, keep the
+         gate moving. This is shorter than the old 180 s stall. */
+      hardTimer = setTimeout(function () { finish('skipped'); }, 30000);
     });
   }
   function startGate() {
     gate.classList.add('on');
     gateRetry.hidden = true;
     gateWatch.hidden = true;
+    /* The sponsor video is the guaranteed ad. Show its CTA from the first
+       frame so the gate never looks like a dead countdown while the rewarded
+       request is in flight. */
+    gateSponsor.hidden = false;
     gateShowAd = null;
+    gateSkipAd = null;
+    gateStartReward = null;
     gateLeft = GATE_SECONDS; gateCountdownDone = false; adSettled = false; gateDone = false;
     if (gateTimer) { clearInterval(gateTimer); gateTimer = null; }
     bootStartedAt = performance.now();
@@ -955,8 +1095,10 @@ Prioritize strong single-core performance over a high advertised core count. Min
     gateN.textContent = String(GATE_SECONDS);
     gateUnit.textContent = 's';
     gateLive.className = 'gate-live';
-    gateLive.textContent = 'Asking Google for a rewarded video\u2026';
+    gateLive.textContent = 'Checking for a rewarded video\u2026';
     adStatus = 'requesting';
+    houseAdDone = false;
+    if (gateAd) gateAd.innerHTML = '';
     setPreloadProgress(0);
     fillGateAd();
     /* Start the download/setup on the same click that requests the ad. The
@@ -968,17 +1110,25 @@ Prioritize strong single-core performance over a high advertised core count. Min
     requestAd(function () { startCountdown(); }).then(function (res) {
       adSettled = true;
       adStatus = res.status || 'done';
+      houseAdDone = true;
+      if (window.__adDiag) {
+        window.__adDiag.lastBreak = adStatus;
+        window.__adDiag.updated = Date.now();
+      }
       if (res.viewed) {
         gateLive.className = 'gate-live';
         gateLive.textContent = 'Rewarded video complete. Thank you for supporting the game.';
+      } else if (res.status === 'skipped') {
+        gateLive.className = 'gate-live';
+        gateLive.textContent = 'Sponsor video shown. Unlocking as soon as the client is ready.';
       } else if (res.dismissed) {
         gateLive.className = 'gate-live warn';
-        gateLive.textContent = 'Video closed early. Sponsor banner shown for the remaining countdown.';
+        gateLive.textContent = 'Video closed early. The sponsor video covers the remaining countdown.';
       } else if (!res.real) {
         gateLive.className = 'gate-live warn';
-        gateLive.textContent = 'No video ad was available. Sponsor banner shown for 5 seconds.';
+        gateLive.textContent = 'No rewarded video filled. Playing the sponsor video instead.';
         if (!gateSub.textContent || /Loading advertisement|rewarded video/i.test(gateSub.textContent)) {
-          setStage('Video ad unavailable \u2014 showing the sponsor banner while the client loads.');
+          setStage('Video ad unavailable \u2014 playing the sponsor video while the client loads.');
         }
       } else {
         gateLive.className = 'gate-live';
