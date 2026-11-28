@@ -54,9 +54,9 @@ try {
 *{box-sizing:border-box}html,body{margin:0;height:100%;max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 body{background:var(--bg);color:var(--text);font-family:'Noto Sans',system-ui,-apple-system,'Segoe UI',sans-serif;font-size:14px;line-height:1.4;-webkit-font-smoothing:antialiased}
 .mc{font-family:'Minecraft Seven',system-ui,sans-serif;font-weight:normal}
-.app{display:flex;min-height:100vh}
+.app{display:flex;min-height:100vh;min-height:100dvh}
 /* ---- left rail (launcher: 180px, items 56px, 1px #0e0e0e separators) ---- */
-aside{width:180px;flex:none;background:var(--bg);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;border-right:2px solid #000}
+aside{width:180px;flex:none;background:var(--bg);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;height:100dvh;border-right:2px solid #000}
 .acct{display:flex;align-items:center;gap:10px;height:72px;padding:0 12px;border-bottom:1px solid var(--line);color:#fff;text-decoration:none}
 .acct img{width:24px;height:24px;image-rendering:pixelated}
 .acct b{display:block;font-size:14px;font-weight:600;line-height:1.2}.acct span{font-size:11px;color:var(--muted)}
@@ -159,7 +159,7 @@ footer{background:var(--feed);color:#a9a9a9;font-size:12px;text-align:center;pad
   .feed{padding:20px 10px}.news{grid-template-columns:1fr}.news .pic{min-height:0;aspect-ratio:16/9}.news h3{font-size:19px}
   .info{padding-left:10px;padding-right:10px}
 }
-@media(max-height:500px){.hero{height:calc(100vh - 150px);min-height:160px}.mnav{display:none}.top h6{display:none}}
+@media(max-height:500px){.hero{height:calc(100vh - 150px);height:calc(100dvh - 150px);min-height:160px}.mnav{display:none}.top h6{display:none}}
 
 /* ---- Dappled Forest panorama (slow crossfade + drift) ---- */
 .hero{background:#000 url('/assets/panorama/panorama_0.png') center/cover no-repeat;overflow:hidden}
@@ -234,8 +234,11 @@ footer{background:var(--feed);color:#a9a9a9;font-size:12px;text-align:center;pad
 .gate-retry:hover{background:#7d7d7d}
 .gate-retry[hidden]{display:none}
 /* ---- preloaded game iframe (hidden behind the rewarded gate) ---- */
-#game-frame{position:fixed;inset:0;width:100%;height:100%;border:0;z-index:9998;background:#000;opacity:0;pointer-events:none;transition:opacity .3s ease}
-body.game-on{overflow:hidden}
+#game-frame{position:fixed;inset:0;width:100%;height:100%;height:100dvh;border:0;z-index:9998;background:#000;opacity:0;pointer-events:none;transition:opacity .3s ease}
+/* Lock the page behind the fullscreen game. overflow:hidden alone still
+   leaves the body as a scroll container on mobile Safari, which produces the
+   small rubber-band scroll the user sees. Fixing the body removes it. */
+body.game-on{position:fixed;inset:0;width:100%;height:100%;overflow:hidden;overscroll-behavior:none;touch-action:none}
 body.game-on #game-frame{opacity:1;pointer-events:auto;z-index:10002}
 /* ---- 1:1 loading screen ---- */
 .load{position:fixed;inset:0;z-index:10001;display:none;place-items:center;background:#000}
@@ -515,7 +518,7 @@ Prioritize strong single-core performance over a high advertised core count. Min
   var HF_BASE = 'https://huggingface.co/spaces/matthewcodergamer/minecraft-browser/resolve/main/';
   var LOCAL_BASE = '/MinecraftWeb/';
   var HF_ORIGIN = 'https://matthewcodergamer-minecraft-browser.static.hf.space';
-  var HF_PLAY = HF_ORIGIN + '/?v=26.3-20261127a&host=pages';
+  var HF_PLAY = HF_ORIGIN + '/?v=26.3-20261127c&host=pages';
   var CACHE = 'mw-game-v1';
   var GATE_SECONDS = 5;
   var total = 0, done = 0, downloading = null, dlDone = false;
