@@ -12,6 +12,6 @@ Canonical build: https://matthewcodergamer-minecraft-browser.static.hf.space/
 
 The launcher currently embeds build **26.3-20261127c** from
 `/game.html?v=26.3-20261127c&host=pages2`. While the game is open the body is
-locked with `position:fixed`, `100dvh`, and `touch-action:none`, so mobile
+locked with `position:fixed`, `overflow:clip`, `100dvh`, and `touch-action:none`, so mobile
 browsers cannot scroll or rubber-band the page behind the canvas. Touch clients
 start at render distance 4.
