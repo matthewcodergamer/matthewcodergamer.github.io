@@ -51,8 +51,8 @@ try {
 <style>
 @font-face{font-family:'Minecraft Seven';src:url('/assets/fonts/Minecraft-Seven.woff') format('woff');font-display:swap}
 :root{--bg:#1e1e1e;--line:#0e0e0e;--feed:#303030;--card:#0e0e0e;--text:#fff;--muted:#c6c6c6;--g:#008542;--g-top:#27ce40;--g-hi:#009047;--g-edge:#0c6e3d;--g-dk:#064d2a}
-*{box-sizing:border-box}html,body{margin:0;height:100%;max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
-body{background:var(--bg);color:var(--text);font-family:'Noto Sans',system-ui,-apple-system,'Segoe UI',sans-serif;font-size:14px;line-height:1.4;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}html{height:100%}html,body{margin:0;min-height:100%;max-width:100%;overscroll-behavior-x:none}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans',system-ui,-apple-system,'Segoe UI',sans-serif;font-size:14px;line-height:1.4;-webkit-font-smoothing:antialiased;overflow-x:hidden;overflow-x:clip}
 .mc{font-family:'Minecraft Seven',system-ui,sans-serif;font-weight:normal}
 .app{display:flex;min-height:100vh;min-height:100dvh}
 /* ---- left rail (launcher: 180px, items 56px, 1px #0e0e0e separators) ---- */
