@@ -238,6 +238,7 @@ footer{background:var(--feed);color:#a9a9a9;font-size:12px;text-align:center;pad
 /* Lock the page behind the fullscreen game. overflow:hidden alone still
    leaves the body as a scroll container on mobile Safari, which produces the
    small rubber-band scroll the user sees. Fixing the body removes it. */
+html.game-on{height:100%;overflow:hidden;overflow:clip;overscroll-behavior:none;touch-action:none}
 body.game-on{position:fixed;inset:0;width:100%;height:100%;overflow:hidden;overflow:clip;overscroll-behavior:none;touch-action:none}
 body.game-on #game-frame{opacity:1;pointer-events:auto;z-index:10002}
 /* ---- 1:1 loading screen ---- */
@@ -825,6 +826,7 @@ Prioritize strong single-core performance over a high advertised core count. Min
     gateLive.textContent = 'Launching the real Java client\u2026';
     gate.classList.remove('on');
     if (load) load.classList.remove('on');
+    document.documentElement.classList.add('game-on');
     document.body.classList.add('game-on');
     try { gameFrame.focus(); } catch (e) {}
     try { sessionStorage.setItem('mw_play_pass', String(Date.now())); } catch (e) {}
