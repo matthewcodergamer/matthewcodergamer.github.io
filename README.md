@@ -11,7 +11,9 @@ the GitHub repository file limit.
 Canonical build: https://matthewcodergamer-minecraft-browser.static.hf.space/
 
 The launcher currently embeds build **26.3-20261127c** from
-`/game.html?v=26.3-20261127c&host=pages2`. While the game is open the body is
-locked with `position:fixed`, `overflow:clip`, `100dvh`, and `touch-action:none`, so mobile
-browsers cannot scroll or rubber-band the page behind the canvas. Touch clients
-start at render distance 4.
+`/game.html?v=26.3-20261127c&host=pages2`. The launcher page itself scrolls
+normally on iOS (`html{height:100%}`, `html,body{min-height:100%}`, body
+`overflow-x:clip`). While the game is open, both `html` and `body` are locked
+with `overflow:clip`, `100dvh`, and `touch-action:none`, and `body` becomes
+`position:fixed`, so mobile browsers cannot scroll or rubber-band the page
+behind the canvas. Touch clients start at render distance 4.
